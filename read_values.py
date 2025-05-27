@@ -289,5 +289,7 @@ class ReadValues():
             self.ATfile.close()
             self.ICfile.close()
 
-    if __name__ == "__main__":
-        asyncio.run(main())
+if __name__ == "__main__":
+    # asyncio.run(main())
+    readValues = ReadValues()
+    readValues.read_register()
