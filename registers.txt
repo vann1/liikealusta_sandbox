@@ -2,124 +2,149 @@ Factory BoardTempTripLevel BTMP16:
                             
 Left_motor:100.0
                             
-Right_motor:100.0Factory IPEAK UCUR16:
+Right_motor:100.0
+
+Factory IPEAK UCUR16:
                             
 Left_motor:14.127
                             
-Right_motor:14.127Factory Icontinious UCUR16:
+Right_motor:14.127
+
+Factory Icontinious UCUR16:
                             
 Left_motor:7.64
                             
-Right_motor:7.64Factory ActuatorTempTripLevel ATMP16:
+Right_motor:7.64
+
+Factory ActuatorTempTripLevel ATMP16:
                             
 Left_motor:300.0
                             
-Right_motor:300.0bandwidth:
+Right_motor:300.0
+
+bandwidth:
                             
 Left_motor:1280
                             
-Right_motor:1280bandwidth 7231:
+Right_motor:1280
+
+bandwidth 7231:
                             
 Left_motor:1280
                             
-Right_motor:1280I peak IPEAK - 2560:
+Right_motor:1280
+
+I peak IPEAK - 2560:
                             
 Left_motor:2560
                             
-Right_motor:2560Register 9205:
+Right_motor:2560
+
+Register 9205:
                             
 Left_motor:960
                             
-Right_motor:960Current operation mode:
+Right_motor:960
+
+Current operation mode:
                             
 Left_motor:2
                             
-Right_motor:2analog input parameters options:
+Right_motor:2
+
+analog input parameters options:
                             
 Left_motor:2
                             
-Right_motor:2analog min min range:
+Right_motor:2
+
+current revolutions:
                             
-Left_motor:0.0
+Left_motor:37058.14
                             
-Right_motor:0.0user mode 2 analog in min:
-                            
-Left_motor:0.0
-                            
-Right_motor:0.0user mode 2 analog in max:
-                            
-Left_motor:0.10240
-                            
-Right_motor:0.10240analog max range:
-                            
-Left_motor:0.10240
-                            
-Right_motor:0.10240analog min adc range:
-                            
-Left_motor:0.380
-                            
-Right_motor:0.304analog max adc range:
-                            
-Left_motor:0.15976
-                            
-Right_motor:0.15900current revolutions:
-                            
-Left_motor:37066.14
-                            
-Right_motor:37066.14host control command mode:
+Right_motor:37066.14
+
+host control command mode:
                             
 Left_motor:2
                             
-Right_motor:2analog i channel:
+Right_motor:2
+
+analog i channel:
                             
 Left_motor:2
                             
-Right_motor:2alt command mode:
+Right_motor:2
+
+alt command mode:
                             
 Left_motor:6
                             
-Right_motor:6defaul modet:
+Right_motor:6
+
+defaul modet:
                             
 Left_motor:1
                             
-Right_motor:1IEG MODE:
+Right_motor:1
+
+IEG MODE:
                             
 Left_motor:2
                             
-Right_motor:2IEG MOTION:
+Right_motor:2
+
+IEG MOTION:
                             
 Left_motor:0
                             
-Right_motor:0ANALOG POS MIN:
+Right_motor:0
+
+ANALOG POS MIN:
                             
 Left_motor:25801.0
                             
-Right_motor:25801.0ANALOG POS MAX:
+Right_motor:25801.0
+
+ANALOG POS MAX:
                             
 Left_motor:61406.28
                             
-Right_motor:61406.28VELOCITY 213 - 256:
+Right_motor:61406.28
+
+VELOCITY 213 - 256:
                             
 Left_motor:39321.1369
                             
-Right_motor:39321.1369ACCEL:
+Right_motor:39321.1369
+
+ACCEL:
                             
 Left_motor:52428.32
                             
-Right_motor:52428.32MODBUSCNTRL:
+Right_motor:52428.32
+
+MODBUSCNTRL:
                             
 Left_motor:4965
                             
-Right_motor:4965OEG sttus:
+Right_motor:4965
+
+OEG sttus:
                             
 Left_motor:7
                             
-Right_motor:7home position:
+Right_motor:7
+
+home position:
                             
 Left_motor:37154.14
                             
-Right_motor:37154.14I peak factory:
+Right_motor:37154.14
+
+I peak factory:
                             
 Left_motor:1919
                             
 Right_motor:1919
+
