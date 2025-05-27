@@ -41,8 +41,8 @@ class ReadValues():
                 #Factory BoardTempTripLevel BTMP16
                 response_left = self.client_left.read_holding_registers(address=9202, count=1)
                 response_right = self.client_right.read_holding_registers(address=9202, count=1)
-                response_left_high, response_left_low = bit_high_low(response_left,5)
-                response_right_high, response_right_low = bit_high_low(response_right,5)
+                response_left_high, response_left_low = bit_high_low(response_left.registers[0],5)
+                response_right_high, response_right_low = bit_high_low(response_right.registers[0],5)
                 registers.write(f"""Factory BoardTempTripLevel BTMP16:
                                 \nLeft_motor:{response_left_high}.{response_left_low}
                                 \nRight_motor:{response_right_high}.{response_right_low}""")
@@ -70,18 +70,17 @@ class ReadValues():
                 response_left = self.client_left.read_holding_registers(address=7201, count=1)
                 response_left = self.client_left.read_holding_registers(address=7231, count=1)
 
-
-
-# I peak        #IPEAK - 2560 
+                #IPEAK - 2560 
                 response_left = self.client_left.read_holding_registers(address=5108, count=1)
                 response_right = self.client_right.read_holding_registers(address=5108, count=1)
-
-                response_left = self.client_left.read_holding_registers(address=9205, count=1)
-                response_right = self.client_right.read_holding_registers(address=9205, count=1)
 
                 # Current operation mode
                 response_left = self.client_left.read_holding_registers(address=31, count=1)
                 response_right = self.client_right.read_holding_registers(address=31, count=1)
+                registers.write(f"""Current operation mode:
+                                \nLeft_motor:{response_left.registers[0]}
+                                \nRight_motor:{response_right.registers[0]}""")
+
 
                 ### analog input parameters options
                 response_left = self.client_left.read_holding_registers(address=31, count=1)
