@@ -6,7 +6,6 @@ import asyncio
 from utils import extract_part
 from test import bit_high_low
 
-
 class ReadValues():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
@@ -33,195 +32,133 @@ class ReadValues():
             self.BTfile.write(f"{self.boardtemp}\n")
             self.ATfile.write(f"{self.actuatortemp}\n")
             self.ICfile.write(f"{self.ic}\n")
+    
+    def write_to_file(file, title, left_vals, right_vals):
+        left_vals = ".".join([str(val) for val in left_vals])
+        right_vals = ".".join([str(val) for val in right_vals])
+            
+        file.write(f"""
+            #### - {title} - #### \n
+            Left motor: {left_vals}\n
+            Right motor: {right_vals}\n
+            """)
+
+    
+def read_register(self):
+    try:
+        registers_file = open("registers.txt", "w")
+
+        # Factory BoardTempTripLevel BTMP16 - 11.5
+        response_left = self.client_left.read_holding_registers(address=9202, count=1)
+        response_right = self.client_right.read_holding_registers(address=9202, count=1)
+        response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
+        response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
         
-    def read_register(self):
-        try:
-            registers_file = open("registers.txt", "w")
+        self.write_to_file(registers_file, title="Factory BoardTempTripLevel BTMP16", left_vals=[response_left_high], right_vals=[response_right_high])
 
-            # Factory BoardTempTripLevel BTMP16
-            response_left = self.client_left.read_holding_registers(address=9202, count=1)
-            response_right = self.client_right.read_holding_registers(address=9202, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
-            registers_file.write(f"""Factory BoardTempTripLevel BTMP16:
-                            \nLeft_motor:{response_left_high}.{response_left_low}
-                            \nRight_motor:{response_right_high}.{response_right_low}\n\n""")
+        # Factory IPEAK UCUR16
+        response_left = self.client_left.read_holding_registers(address=9204, count=1)
+        response_right = self.client_right.read_holding_registers(address=9204, count=1)
+        response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
+        response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
+        self.write_to_file(registers_file, title="Factory IPEAK UCUR16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
-            # Factory IPEAK UCUR16
-            response_left = self.client_left.read_holding_registers(address=9204, count=1)
-            response_right = self.client_right.read_holding_registers(address=9204, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            registers_file.write(f"""Factory IPEAK UCUR16:
-                            \nLeft_motor:{response_left_high}.{response_left_low}
-                            \nRight_motor:{response_right_high}.{response_right_low}\n\n""")
+        # Factory Icontinious UCUR16
+        response_left = self.client_left.read_holding_registers(address=9205, count=1)
+        response_right = self.client_right.read_holding_registers(address=9205, count=1)
+        response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
+        response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
+        self.write_to_file(registers_file, title="Factory Icontinious UCUR16:", left_vals=[response_left_high], right_vals=[response_right_high])
+        
+        # Factory ActuatorTempTripLevel ATMP16 - 13.3
+        response_left = self.client_left.read_holding_registers(address=9209, count=1)
+        response_right = self.client_right.read_holding_registers(address=9209, count=1)
+        response_left_high, response_left_low = bit_high_low(response_left.registers[0], 3)
+        response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
+        self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
-            # Factory Icontinious UCUR16
-            response_left = self.client_left.read_holding_registers(address=9205, count=1)
-            response_right = self.client_right.read_holding_registers(address=9205, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            registers_file.write(f"""Factory Icontinious UCUR16:
-                            \nLeft_motor:{response_left_high}.{response_left_low}
-                            \nRight_motor:{response_right_high}.{response_right_low}\n\n""")
+        # I peak IPEAK - 2560
+        response_left = self.client_left.read_holding_registers(address=5108, count=1)
+        response_right = self.client_right.read_holding_registers(address=5108, count=1)
+        self.write_to_file(registers_file, title="I peak IPEAK - 2560:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # Factory ActuatorTempTripLevel ATMP16
-            response_left = self.client_left.read_holding_registers(address=9209, count=1)
-            response_right = self.client_right.read_holding_registers(address=9209, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 3)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
-            registers_file.write(f"""Factory ActuatorTempTripLevel ATMP16:
-                            \nLeft_motor:{response_left_high}.{response_left_low}
-                            \nRight_motor:{response_right_high}.{response_right_low}\n\n""")
+        # Current operation mode
+        response_left = self.client_left.read_holding_registers(address=31, count=1)
+        response_right = self.client_right.read_holding_registers(address=31, count=1)
+        self.write_to_file(registers_file, title="Current operation mode:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # bandwidth
-            response_left = self.client_left.read_holding_registers(address=7201, count=1)
-            response_right = self.client_right.read_holding_registers(address=7201, count=1)
-            registers_file.write(f"""bandwidth:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # current revolutions
+        response_left = self.client_left.read_holding_registers(address=378, count=2)
+        response_right = self.client_right.read_holding_registers(address=378, count=2)
+        self.write_to_file(registers_file, title="current revolutions:", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
 
-            response_left = self.client_left.read_holding_registers(address=7231, count=1)
-            response_right = self.client_right.read_holding_registers(address=7231, count=1)
-            registers_file.write(f"""bandwidth 7231:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # host control command mode
+        response_left = self.client_left.read_holding_registers(address=4303, count=1)
+        response_right = self.client_right.read_holding_registers(address=4303, count=1)
+        self.write_to_file(registers_file, title="host control command mode:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # I peak IPEAK - 2560
-            response_left = self.client_left.read_holding_registers(address=5108, count=1)
-            response_right = self.client_right.read_holding_registers(address=5108, count=1)
-            registers_file.write(f"""I peak IPEAK - 2560:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # analog i channel
+        response_left = self.client_left.read_holding_registers(address=7101, count=1)
+        response_right = self.client_right.read_holding_registers(address=7101, count=1)
+        self.write_to_file(registers_file, title="analog i channel:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            response_left = self.client_left.read_holding_registers(address=9205, count=1)
-            response_right = self.client_right.read_holding_registers(address=9205, count=1)
-            registers_file.write(f"""Register 9205:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # alt command mode
+        response_left = self.client_left.read_holding_registers(address=5107, count=1)
+        response_right = self.client_right.read_holding_registers(address=5107, count=1)
+        self.write_to_file(registers_file, title="alt command mode:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # Current operation mode
-            response_left = self.client_left.read_holding_registers(address=31, count=1)
-            response_right = self.client_right.read_holding_registers(address=31, count=1)
-            registers_file.write(f"""Current operation mode:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # default mode
+        response_left = self.client_left.read_holding_registers(address=5106, count=1)
+        response_right = self.client_right.read_holding_registers(address=5106, count=1)
+        self.write_to_file(registers_file, title="default mode:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # analog input parameters options
-            response_left = self.client_left.read_holding_registers(address=31, count=1)
-            response_right = self.client_right.read_holding_registers(address=31, count=1)
-            registers_file.write(f"""analog input parameters options:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # IEG MODE
+        response_left = self.client_left.read_holding_registers(address=4316, count=1)
+        response_right = self.client_right.read_holding_registers(address=4316, count=1)
+        self.write_to_file(registers_file, title="IEG MODE:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # current revolutions
-            response_left = self.client_left.read_holding_registers(address=378, count=2)
-            response_right = self.client_right.read_holding_registers(address=378, count=2)
-            registers_file.write(f"""current revolutions:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
+        # IEG MOTION
+        response_left = self.client_left.read_holding_registers(address=4317, count=1)
+        response_right = self.client_right.read_holding_registers(address=4317, count=1)
+        self.write_to_file(registers_file, title="IEG MOTION:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # host control command mode
-            response_left = self.client_left.read_holding_registers(address=4303, count=1)
-            response_right = self.client_right.read_holding_registers(address=4303, count=1)
-            registers_file.write(f"""host control command mode:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # ANALOG POS MIN
+        response_left = self.client_left.read_holding_registers(address=7102, count=2)
+        response_right = self.client_right.read_holding_registers(address=7102, count=2)
+        self.write_to_file(registers_file, title="ANALOG POS MIN:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
 
-            # analog i channel
-            response_left = self.client_left.read_holding_registers(address=7101, count=1)
-            response_right = self.client_right.read_holding_registers(address=7101, count=1)
-            registers_file.write(f"""analog i channel:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # ANALOG POS MAX
+        response_left = self.client_left.read_holding_registers(address=7104, count=2)
+        response_right = self.client_right.read_holding_registers(address=7104, count=2)
+        self.write_to_file(registers_file, title="ANALOG POS MAX:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
 
-            # alt command mode
-            response_left = self.client_left.read_holding_registers(address=5107, count=1)
-            response_right = self.client_right.read_holding_registers(address=5107, count=1)
-            registers_file.write(f"""alt command mode:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # VELOCITY 
+        response_left = self.client_left.read_holding_registers(address=7106, count=2)
+        response_right = self.client_right.read_holding_registers(address=7106, count=2)
+        self.write_to_file(registers_file, title="VELOCITY:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
 
-            # defaul modet
-            response_left = self.client_left.read_holding_registers(address=5106, count=1)
-            response_right = self.client_right.read_holding_registers(address=5106, count=1)
-            registers_file.write(f"""defaul modet:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # ACCEL
+        response_left = self.client_left.read_holding_registers(address=7108, count=2)
+        response_right = self.client_right.read_holding_registers(address=7108, count=2)
+        self.write_to_file(registers_file, title="ACCEL:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
 
-            # IEG MODE
-            response_left = self.client_left.read_holding_registers(address=4316, count=1)
-            response_right = self.client_right.read_holding_registers(address=4316, count=1)
-            registers_file.write(f"""IEG MODE:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # MODBUSCNTRL
+        response_left = self.client_left.read_holding_registers(address=7188, count=1)
+        response_right = self.client_right.read_holding_registers(address=7188, count=1)
+        self.write_to_file(registers_file, title="MODBUSCNTRL:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # IEG MOTION
-            response_left = self.client_left.read_holding_registers(address=4317, count=1)
-            response_right = self.client_right.read_holding_registers(address=4317, count=1)
-            registers_file.write(f"""IEG MOTION:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
+        # OEG status
+        response_right = self.client_right.read_holding_registers(address=104, count=1)
+        response_left = self.client_left.read_holding_registers(address=104, count=1)
+        self.write_to_file(registers_file, title="OEG status:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # ANALOG POS MIN
-            response_left = self.client_left.read_holding_registers(address=7102, count=2)
-            response_right = self.client_right.read_holding_registers(address=7102, count=2)
-            registers_file.write(f"""ANALOG POS MIN:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
+        # home position
+        response_left = self.client_left.read_holding_registers(address=6002, count=2)
+        response_right = self.client_right.read_holding_registers(address=6002, count=2)
+        self.write_to_file(registers_file, title="home position:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
 
-            # ANALOG POS MAX
-            response_left = self.client_left.read_holding_registers(address=7104, count=2)
-            response_right = self.client_right.read_holding_registers(address=7104, count=2)
-            registers_file.write(f"""ANALOG POS MAX:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
-
-            # VELOCITY 
-            response_left = self.client_left.read_holding_registers(address=7106, count=2)
-            response_right = self.client_right.read_holding_registers(address=7106, count=2)
-            registers_file.write(f"""VELOCITY:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
-
-            # ACCEL
-            response_left = self.client_left.read_holding_registers(address=7108, count=2)
-            response_right = self.client_right.read_holding_registers(address=7108, count=2)
-            registers_file.write(f"""ACCEL:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
-
-            # MODBUSCNTRL
-            response_left = self.client_left.read_holding_registers(address=7188, count=1)
-            response_right = self.client_right.read_holding_registers(address=7188, count=1)
-            registers_file.write(f"""MODBUSCNTRL:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
-
-            # OEG sttus
-            response_right = self.client_right.read_holding_registers(address=104, count=1)
-            response_left = self.client_left.read_holding_registers(address=104, count=1)
-            test1 = bin(response_left.registers[0])
-            test2 = bin(response_right.registers[0])
-            registers_file.write(f"""OEG sttus:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
-
-            # home position
-            response_left = self.client_left.read_holding_registers(address=6002, count=2)
-            response_right = self.client_right.read_holding_registers(address=6002, count=2)
-            registers_file.write(f"""home position:
-                            \nLeft_motor:{response_left.registers[0]}.{response_left.registers[1]}
-                            \nRight_motor:{response_right.registers[0]}.{response_right.registers[1]}\n\n""")
-
-            # I peak factory
-            response_left = self.client_left.read_holding_registers(address=9204, count=1)
-            response_right = self.client_right.read_holding_registers(address=9204, count=1)
-            registers_file.write(f"""I peak factory:
-                            \nLeft_motor:{response_left.registers[0]}
-                            \nRight_motor:{response_right.registers[0]}\n\n""")
-        finally:
-            registers_file.close()
+    finally:
+        registers_file.close()
                 
     async def init(self):
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
