@@ -41,17 +41,17 @@ class ReadValues():
             #Factory BoardTempTripLevel BTMP16
             response_left = self.client_left.read_holding_registers(address=9202, count=1)
             response_right = self.client_right.read_holding_registers(address=9202, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left,5)
-            response_right_high, response_right_low = bit_high_low(response_right,5)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0],5)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0],5)
             registers_file.write(f"""Factory BoardTempTripLevel BTMP16:
                             \nLeft_motor:{response_left_high}.{response_left_low}
-                            \nRight_motor:{response_right_high}.{response_right_low}""")
+                            \nRight_motor:{response_right_high}.{response_right_low}\n""")
 
             #Factory IPEAK UCUR16
             response_left = self.client_left.read_holding_registers(address=9204, count=1)
             response_right = self.client_right.read_holding_registers(address=9204, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left,7)
-            response_right_high, response_right_low = bit_high_low(response_right,7)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0],7)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0],7)
             registers_file.write(f"""Factory IPEAK UCUR16:
                             \nLeft_motor:{response_left_high}.{response_left_low}
                             \nRight_motor:{response_right_high}.{response_right_low}""")
@@ -59,8 +59,8 @@ class ReadValues():
             #Factory Icontinious UCUR16
             response_left = self.client_left.read_holding_registers(address=9205, count=1)
             response_right = self.client_right.read_holding_registers(address=9205, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left,7)
-            response_right_high, response_right_low = bit_high_low(response_right,7)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0],7)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0],7)
             registers_file.write(f"""Factory Icontinious UCUR16:
                             \nLeft_motor:{response_left_high}.{response_left_low}
                             \nRight_motor:{response_right_high}.{response_right_low}""")
@@ -68,8 +68,8 @@ class ReadValues():
             #Factory ActuatorTempTripLevel ATMP16
             response_left = self.client_left.read_holding_registers(address=9209, count=1)
             response_right = self.client_right.read_holding_registers(address=9209, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left,3)
-            response_right_high, response_right_low = bit_high_low(response_right,3)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0],3)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0],3)
             registers_file.write(f"""Factory ActuatorTempTripLevel ATMP16:
                             \nLeft_motor:{response_left_high}.{response_left_low}
                             \nRight_motor:{response_right_high}.{response_right_low}""")
