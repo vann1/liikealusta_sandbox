@@ -3,6 +3,7 @@ from address_enum import READ_ADDRESSES
 import atexit
 import struct
 import requests
+from test import bit_high_low
 
 def shift_bits(number, shift_bit_amount):
         number = number & 0xffff
@@ -36,16 +37,26 @@ def main():
                 #Factory BoardTempTripLevel BTMP16
                 response_left = client_leFt.read_holding_registers(address=9202, count=1)
                 response_right = client_right.read_holding_registers(address=9202, count=1)
+                response_left_high, response_left_low = bit_high_low(response_left,5)
+                response_right_high, response_right_low = bit_high_low(response_right,5)
+
                 #Factory IPEAK UCUR16
                 response_left = client_leFt.read_holding_registers(address=9204, count=1)
                 response_right = client_right.read_holding_registers(address=9204, count=1)
+                response_left_high, response_left_low = bit_high_low(response_left,7)
+                response_right_high, response_right_low = bit_high_low(response_right,7)
+                
                 #Factory Icontinious UCUR16
                 response_left = client_leFt.read_holding_registers(address=9205, count=1)
                 response_right = client_right.read_holding_registers(address=9205, count=1)
+                response_left_high, response_left_low = bit_high_low(response_left,7)
+                response_right_high, response_right_low = bit_high_low(response_right,7)
+                
                 #Factory ActuatorTempTripLevel ATMP16
                 response_left = client_leFt.read_holding_registers(address=9209, count=1)
                 response_right = client_right.read_holding_registers(address=9209, count=1)
-                
+                response_left_high, response_left_low = bit_high_low(response_left,3)
+                response_right_high, response_right_low = bit_high_low(response_right,3)
                 
                 
                 #bandwidth
