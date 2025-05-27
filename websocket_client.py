@@ -2,7 +2,7 @@ import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosed
 from config import Config
-
+#test
 config = Config()
 
 class WebsocketClient():
