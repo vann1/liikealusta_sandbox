@@ -276,7 +276,6 @@ class ReadValues():
         self.ICfile = open("IContinous.txt", "w")
         await self.wsclient.connect()
         
-        
     async def main(self):
         try:
             # await self.init()
