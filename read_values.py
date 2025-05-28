@@ -176,15 +176,11 @@ class ReadValues():
             await self.init()
             elapsed_time = 0
             max_duration = 120
-            await self.wsclient.send("action=readtelemetry|")
-            while self.asd:
-                await asyncio.sleep(1)
-
-            # start = time().time()
-            # while elapsed_time>=max_duration:
-            #     self.wsclient.send("action=readtelemetry|")
-            #     time.sleep(0.1)
-            #     elapsed_time = time.time() - start
+            start = time().time()
+            while elapsed_time<=max_duration:
+                self.wsclient.send("action=readtelemetry|")
+                await asyncio.sleep(0.1)
+                elapsed_time = time.time() - start
                 
         except Exception as e:
             print(f"Error while reading registers: {e}")
