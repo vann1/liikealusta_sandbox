@@ -17,9 +17,10 @@ class ReadValues():
     client_left.connect()
     logger = None
     wsclient = None
-
+    asd = True
     
-    def on_message(self,msg):
+    async def on_message(self,msg):
+        
         event = extract_part("event=",msg)
         message = extract_part("message=",msg)
         if not message:
@@ -32,7 +33,8 @@ class ReadValues():
             self.BTfile.write(f"{self.boardtemp}\n")
             self.ATfile.write(f"{self.actuatortemp}\n")
             self.ICfile.write(f"{self.ic}\n")
-    
+            self.asd = False
+            await self.wsclient.close()
     def write_to_file(self, file, title, left_vals, right_vals):
         left_vals = ".".join([str(val) for val in left_vals])
         right_vals = ".".join([str(val) for val in right_vals])
@@ -174,8 +176,10 @@ class ReadValues():
             await self.init()
             elapsed_time = 0
             max_duration = 120
-            self.wsclient.send("action=readtelemetry|")
-            time.sleep(120)
+            await self.wsclient.send("action=readtelemetry|")
+            while self.asd:
+                await asyncio.sleep(1)
+
             # start = time().time()
             # while elapsed_time>=max_duration:
             #     self.wsclient.send("action=readtelemetry|")
@@ -190,6 +194,7 @@ class ReadValues():
             self.ICfile.close()
 
 if __name__ == "__main__":
-    # asyncio.run(main())
     readValues = ReadValues()
-    readValues.read_register()
+    asyncio.run(readValues.main())
+
+    # readValues.read_register()

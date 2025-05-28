@@ -52,7 +52,7 @@ class WebsocketClient():
             while self.is_running:
                 response = await self.socket.recv()
                 if self.on_message:
-                    self.on_message(response)
+                    await self.on_message(response)
         except ConnectionClosed:
             self.logger.info("Client disconnected from the server")
         except Exception as e:

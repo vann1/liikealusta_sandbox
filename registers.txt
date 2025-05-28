@@ -1,0 +1,81 @@
+
+            #### - Factory BoardTempTripLevel BTMP16 - ####
+            Left motor: 100
+            Right motor: 100
+            
+            #### - Factory IPEAK UCUR16: - ####
+            Left motor: 14
+            Right motor: 14
+            
+            #### - Factory Icontinious UCUR16: - ####
+            Left motor: 7
+            Right motor: 7
+            
+            #### - Factory ActuatorTempTripLevel ATMP16: - ####
+            Left motor: 300
+            Right motor: 300
+            
+            #### - User defined IPEAK - 2560: - ####
+            Left motor: 20
+            Right motor: 20
+            
+            #### - Current operation mode: - ####
+            Left motor: 2
+            Right motor: 2
+            
+            #### - current revolutions: - ####
+            Left motor: 14.37058
+            Right motor: 14.37066
+            
+            #### - host control command mode: - ####
+            Left motor: 2
+            Right motor: 2
+            
+            #### - analog i channel: - ####
+            Left motor: 2
+            Right motor: 2
+            
+            #### - alt command mode: - ####
+            Left motor: 6
+            Right motor: 6
+            
+            #### - default mode: - ####
+            Left motor: 1
+            Right motor: 1
+            
+            #### - IEG MODE: - ####
+            Left motor: 2
+            Right motor: 2
+            
+            #### - IEG MOTION: - ####
+            Left motor: 0
+            Right motor: 0
+            
+            #### - ANALOG POS MIN: - ####
+            Left motor: 25801.0
+            Right motor: 25801.0
+            
+            #### - ANALOG POS MAX: - ####
+            Left motor: 61406.28
+            Right motor: 61406.28
+            
+            #### - VELOCITY: - ####
+            Left motor: 21845.213
+            Right motor: 21845.213
+            
+            #### - ACCEL: - ####
+            Left motor: 43690.26
+            Right motor: 43690.26
+            
+            #### - MODBUSCNTRL: - ####
+            Left motor: 4965
+            Right motor: 4965
+            
+            #### - OEG status: - ####
+            Left motor: 7
+            Right motor: 7
+            
+            #### - home position: - ####
+            Left motor: 37154.14
+            Right motor: 37154.14
+            
