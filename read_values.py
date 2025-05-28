@@ -30,10 +30,12 @@ class ReadValues():
         if event == "telemetrydata":
             self.boardtemp = extract_part("boardtemp:", message, delimiter="*")
             self.actuatortemp = extract_part("actuatortemp:",message,delimiter="*")
+            self.VBUS = extract_part("VBUS:", message, delimiter="*")
             self.ic = extract_part("IC:",message,delimiter="*")
             self.BTfile.write(f"{self.boardtemp}\n")
             self.ATfile.write(f"{self.actuatortemp}\n")
             self.ICfile.write(f"{self.ic}\n")
+            self.VBUSfile.write(f"{self.VBUS}\n")
             self.asd = False
             await self.wsclient.close()
     def write_to_file(self, file, title, left_vals, right_vals):
@@ -190,6 +192,7 @@ class ReadValues():
         self.BTfile = open("BoardTemp.txt", "w")
         self.ATfile = open("ActuatorTemp.txt", "w")
         self.ICfile = open("IContinous.txt", "w")
+        self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
         
     async def main(self):
@@ -209,6 +212,7 @@ class ReadValues():
             self.BTfile.close()
             self.ATfile.close()
             self.ICfile.close()
+            self.VBUSfile.close()
 
 if __name__ == "__main__":
     readValues = ReadValues()
