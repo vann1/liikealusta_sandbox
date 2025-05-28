@@ -1,6 +1,6 @@
 from setup_logging import setup_logging
 from pymodbus.client import ModbusTcpClient
-import time
+from time import time
 from websocket_client import WebsocketClient
 import asyncio
 from utils import extract_part
@@ -18,7 +18,7 @@ class ReadValues():
     client_left.connect()
     logger = None
     wsclient = None
-    asd = True
+
     
     async def on_message(self,msg):
         
@@ -36,11 +36,10 @@ class ReadValues():
             self.ATfile.write(f"{self.actuatortemp}\n")
             self.ICfile.write(f"{self.ic}\n")
             self.VBUSfile.write(f"{self.VBUS}\n")
-            self.asd = False
-            await self.wsclient.close()
+
     def write_to_file(self, file, title, left_vals, right_vals):
-        left_vals = ".".join([str(val) for val in left_vals])
-        right_vals = ".".join([str(val) for val in right_vals])
+        left_vals = ";".join([str(val) for val in left_vals])
+        right_vals = ";".join([str(val) for val in right_vals])
             
         file.write(f"""
             #### - {title} - ####
@@ -82,6 +81,7 @@ class ReadValues():
             self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
             # Factory LowVoltageTripLevel UVOLT16 - 11.5
+            UVOLT16_DECIMAL_MAX = 2**5
             response_left = self.client_left.read_holding_registers(address=9200, count=1)
             response_right = self.client_right.read_holding_registers(address=9200, count=1)
             response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
@@ -91,7 +91,6 @@ class ReadValues():
             self.write_to_file(registers_file, title="LowVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_right], right_vals=[response_right_high, decimal_normalized_right])
 
             # Factory HighVoltageTripLevel UVOLT16 - 11.5
-            UVOLT16_DECIMAL_MAX = 2**5
             response_left = self.client_left.read_holding_registers(address=9201, count=1)
             response_right = self.client_right.read_holding_registers(address=9201, count=1)
             response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
@@ -200,15 +199,17 @@ class ReadValues():
             await self.init()
             elapsed_time = 0
             max_duration = 120
-            start = time().time()
+            start = time()
             while elapsed_time<=max_duration:
-                self.wsclient.send("action=readtelemetry|")
+                await self.wsclient.send("action=readtelemetry|")
                 await asyncio.sleep(0.1)
-                elapsed_time = time.time() - start
-                
+                elapsed_time = time() - start
+        except KeyboardInterrupt:  
+                pass
         except Exception as e:
             print(f"Error while reading registers: {e}")
         finally: 
+            await self.wsclient.close()
             self.BTfile.close()
             self.ATfile.close()
             self.ICfile.close()
@@ -216,6 +217,6 @@ class ReadValues():
 
 if __name__ == "__main__":
     readValues = ReadValues()
-    # asyncio.run(readValues.main())
+    asyncio.run(readValues.main())
 
-    readValues.read_register()
+    # readValues.read_register()

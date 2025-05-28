@@ -15,6 +15,14 @@
             Left motor: 300
             Right motor: 300
             
+            #### - LowVoltageTripLevel: - ####
+            Left motor: 100;0.0
+            Right motor: 100;0.0
+            
+            #### - HighVoltageTripLevel: - ####
+            Left motor: 410;0.0
+            Right motor: 410;0.0
+            
             #### - User defined IPEAK - 2560: - ####
             Left motor: 20
             Right motor: 20
@@ -24,8 +32,8 @@
             Right motor: 2
             
             #### - current revolutions: - ####
-            Left motor: 14.37058
-            Right motor: 14.37066
+            Left motor: 14;37066
+            Right motor: 14;37066
             
             #### - host control command mode: - ####
             Left motor: 2
@@ -52,20 +60,20 @@
             Right motor: 0
             
             #### - ANALOG POS MIN: - ####
-            Left motor: 25801.0
-            Right motor: 25801.0
+            Left motor: 25801;0
+            Right motor: 25801;0
             
             #### - ANALOG POS MAX: - ####
-            Left motor: 61406.28
-            Right motor: 61406.28
+            Left motor: 61406;28
+            Right motor: 61406;28
             
             #### - VELOCITY: - ####
-            Left motor: 21845.213
-            Right motor: 21845.213
+            Left motor: 0;1280
+            Right motor: 0;1280
             
             #### - ACCEL: - ####
-            Left motor: 43690.26
-            Right motor: 43690.26
+            Left motor: 0;80
+            Right motor: 0;80
             
             #### - MODBUSCNTRL: - ####
             Left motor: 4965
@@ -76,6 +84,6 @@
             Right motor: 7
             
             #### - home position: - ####
-            Left motor: 37154.14
-            Right motor: 37154.14
+            Left motor: 37154;14
+            Right motor: 37154;14
             
