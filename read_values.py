@@ -6,6 +6,7 @@ import asyncio
 from utils import extract_part
 from test import bit_high_low
 
+
 class ReadValues():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
@@ -191,6 +192,6 @@ class ReadValues():
 
 if __name__ == "__main__":
     readValues = ReadValues()
-    asyncio.run(readValues.main())
+    # asyncio.run(readValues.main())
 
-    # readValues.read_register()
+    readValues.read_register()

@@ -23,11 +23,12 @@ class ControlLoop():
         self.logger = setup_logging("control_loop", "control_loop.txt")
         self.wsclient = WebsocketClient(self.logger)
         await self.wsclient.connect()
+        a = 10
     async def main(self):
         await self.init()
         while True:
             try:
-                time.sleep(0.05)
+                await asyncio.sleep(0.05)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3] * (-1)
@@ -46,8 +47,9 @@ class ControlLoop():
                         pitch = 0.0
 
                     ### make a command
-                    self.wsclient.send("action=rotate|")
+                    await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
             except Exception as e:
+                print(e)
                 continue
             
 if __name__ == "__main__":
