@@ -78,6 +78,26 @@ class ReadValues():
             response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
             self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
+            # Factory LowVoltageTripLevel UVOLT16 - 11.5
+            response_left = self.client_left.read_holding_registers(address=9200, count=1)
+            response_right = self.client_right.read_holding_registers(address=9200, count=1)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
+            decimal_normalized_left = response_left_low / UVOLT16_DECIMAL_MAX
+            decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
+            self.write_to_file(registers_file, title="LowVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_right], right_vals=[response_right_high, decimal_normalized_right])
+
+            # Factory HighVoltageTripLevel UVOLT16 - 11.5
+            UVOLT16_DECIMAL_MAX = 2**5
+            response_left = self.client_left.read_holding_registers(address=9201, count=1)
+            response_right = self.client_right.read_holding_registers(address=9201, count=1)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
+            decimal_normalized_left = response_left_low / UVOLT16_DECIMAL_MAX
+            decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
+
+            self.write_to_file(registers_file, title="HighVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_left], right_vals=[response_right_high, decimal_normalized_right])
+
             # User defined IPEAK - 2560
             response_left = self.client_left.read_holding_registers(address=5108, count=1)
             response_right = self.client_right.read_holding_registers(address=5108, count=1)
