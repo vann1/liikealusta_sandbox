@@ -194,6 +194,16 @@ class ReadValues():
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
             response_right = self.client_right.read_holding_registers(address=6002, count=2)
             self.write_to_file(registers_file, title="home position:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
+             
+            # Fault disables
+            response_left = self.client_left.read_holding_registers(address=5102, count=1)
+            response_right = self.client_right.read_holding_registers(address=5102, count=1)
+            self.write_to_file(registers_file, title="FaultDisables: ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+             
+            # Fault stop
+            response_left = self.client_left.read_holding_registers(address=5104, count=1)
+            response_right = self.client_right.read_holding_registers(address=5104, count=1)
+            self.write_to_file(registers_file, title="FaultStop: ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
         finally:
             registers_file.close()

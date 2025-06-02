@@ -282,7 +282,6 @@ def bit_high_low_both(number, low_bit, output="both"):
                 return register_val_low
         else:
                 raise Exception
-                
 
 
 
