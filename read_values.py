@@ -205,6 +205,55 @@ class ReadValues():
             response_right = self.client_right.read_holding_registers(address=5104, count=1)
             self.write_to_file(registers_file, title="FaultStop: ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
+            # Channel 1 ID
+            response_left = self.client_left.read_holding_registers(address=4100, count=1)
+            response_right = self.client_right.read_holding_registers(address=4100, count=1)
+            self.write_to_file(registers_file, title="Channel 1 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 1 Flags
+            response_left = self.client_left.read_holding_registers(address=4101, count=1)
+            response_right = self.client_right.read_holding_registers(address=4101, count=1)
+            self.write_to_file(registers_file, title="Channel 1 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 2 ID
+            response_left = self.client_left.read_holding_registers(address=4102, count=1)
+            response_right = self.client_right.read_holding_registers(address=4102, count=1)
+            self.write_to_file(registers_file, title="Channel 2 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 2 Flags
+            response_left = self.client_left.read_holding_registers(address=4103, count=1)
+            response_right = self.client_right.read_holding_registers(address=4103, count=1)
+            self.write_to_file(registers_file, title="Channel 2 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 3 ID
+            response_left = self.client_left.read_holding_registers(address=4104, count=1)
+            response_right = self.client_right.read_holding_registers(address=4104, count=1)
+            self.write_to_file(registers_file, title="Channel 3 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 3 Flags
+            response_left = self.client_left.read_holding_registers(address=4105, count=1)
+            response_right = self.client_right.read_holding_registers(address=4105, count=1)
+            self.write_to_file(registers_file, title="Channel 3 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 4 ID
+            response_left = self.client_left.read_holding_registers(address=4106, count=1)
+            response_right = self.client_right.read_holding_registers(address=4106, count=1)
+            self.write_to_file(registers_file, title="Channel 4 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Channel 4 Flags
+            response_left = self.client_left.read_holding_registers(address=4107, count=1)
+            response_right = self.client_right.read_holding_registers(address=4107, count=1)
+            self.write_to_file(registers_file, title="Channel 4 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Trigger ID
+            response_left = self.client_left.read_holding_registers(address=4108, count=1)
+            response_right = self.client_right.read_holding_registers(address=4108, count=1)
+            self.write_to_file(registers_file, title="Trigger ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+
+            # Trigger Flags
+            response_left = self.client_left.read_holding_registers(address=4109, count=1)
+            response_right = self.client_right.read_holding_registers(address=4109, count=1)
+            self.write_to_file(registers_file, title="Trigger Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
         finally:
             registers_file.close()
                 
