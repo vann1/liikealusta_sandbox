@@ -7,6 +7,7 @@ import utils as utils
 from liikealusta_sandbox.motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
+from oeg_mode_codes import OEG_MODE
 
 config = MotorConfig()
 
@@ -50,6 +51,21 @@ class Sandbox():
             Right motor: {right_vals}
             """)
     
+    def get_active_bit_values(self, value, range=16):
+        active_bit_values = []
+        for n in range(range):
+            if utils.is_nth_bit_on(n, value):
+                active_bit_values.append(2**n)
+
+    def convert_bits_to_dict(self, value, dict="OEG_STATUS"):
+        definitions = []
+        if dict=="OEG_STATUS":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(OEG_MODE[value])
+
+        return "\n".join(definitions)
+
     def read_register(self):
         try:
             registers_file = open("registers.txt", "w")
@@ -379,7 +395,9 @@ class Sandbox():
         self.ICfile = open("IContinous.txt", "w")
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
-        
+
+    
+      
     async def main(self):
         try:
             await self.init()
