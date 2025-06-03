@@ -114,7 +114,6 @@ class ReadValues():
             response_left_high, response_left_low = bit_high_low(response_left.registers[1], 7)
             response_right_high, response_right_low = bit_high_low(response_right.registers[1], 7)
             self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.7 :", left_vals=[response_left_high, response_left.registers[0]], right_vals=[response_right_high, response_right.registers[0]])
-            self.write_to_file(registers_file, title="MAX CURRENT SINCE STARTUP", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
 
             # MAX VOLTAGE SINCE STARTUP
             left_VBUS = self.client_left.read_holding_registers(address=578, count=2)

@@ -15,6 +15,10 @@
             Left motor: 300
             Right motor: 300
             
+            #### - HOST CURRENT MAX LIMIT - 9.7 : - ####
+            Left motor: 59343
+            Right motor: 0
+            
             #### - LowVoltageTripLevel: - ####
             Left motor: 100;0.0
             Right motor: 100;0.0
@@ -23,21 +27,33 @@
             Left motor: 410;0.0
             Right motor: 410;0.0
             
+            #### - HOST CURRENT MAX LIMIT - 9.7 : - ####
+            Left motor: 15;4114
+            Right motor: 6;62272
+            
+            #### - MAX VOLTAGE SINCE STARTUP - ####
+            Left motor: 338.6881332397461
+            Right motor: 340.4527587890625
+            
+            #### - HOME PRIMARY OPTIONS FLAG MAP -: - ####
+            Left motor: 59343
+            Right motor: 0
+            
             #### - User defined IPEAK - 2560: - ####
             Left motor: 20
             Right motor: 20
             
             #### - Current operation mode: - ####
-            Left motor: 2
-            Right motor: 2
+            Left motor: 6
+            Right motor: 6
             
             #### - current revolutions: - ####
-            Left motor: 14;37066
-            Right motor: 14;37066
+            Left motor: 14;37202
+            Right motor: 14;38474
             
             #### - host control command mode: - ####
-            Left motor: 2
-            Right motor: 2
+            Left motor: 0
+            Right motor: 0
             
             #### - analog i channel: - ####
             Left motor: 2
@@ -52,8 +68,8 @@
             Right motor: 1
             
             #### - IEG MODE: - ####
-            Left motor: 2
-            Right motor: 2
+            Left motor: 128
+            Right motor: 128
             
             #### - IEG MOTION: - ####
             Left motor: 0
@@ -69,21 +85,131 @@
             
             #### - VELOCITY: - ####
             Left motor: 0;1280
-            Right motor: 0;1280
+            Right motor: 21844;405
             
             #### - ACCEL: - ####
-            Left motor: 0;80
-            Right motor: 0;80
+            Left motor: 43691;138
+            Right motor: 21844;25
             
             #### - MODBUSCNTRL: - ####
-            Left motor: 4965
-            Right motor: 4965
+            Left motor: 0
+            Right motor: 0
             
             #### - OEG status: - ####
-            Left motor: 7
-            Right motor: 7
+            Left motor: 135
+            Right motor: 135
             
             #### - home position: - ####
             Left motor: 37154;14
             Right motor: 37154;14
+            
+            #### - FaultDisables:  - ####
+            Left motor: 59903
+            Right motor: 59903
+            
+            #### - FaultStop:  - ####
+            Left motor: 0
+            Right motor: 0
+            
+            #### - -- SCOPE CONTROL REGISTERS -- 
+ Channel 1 ID  - ####
+            Left motor: 382
+            Right motor: 0
+            
+            #### - Channel 1 Flags  - ####
+            Left motor: 1
+            Right motor: 0
+            
+            #### - Channel 2 ID  - ####
+            Left motor: 378
+            Right motor: 0
+            
+            #### - Channel 2 Flags  - ####
+            Left motor: 1
+            Right motor: 0
+            
+            #### - Channel 3 ID  - ####
+            Left motor: 346
+            Right motor: 0
+            
+            #### - Channel 3 Flags  - ####
+            Left motor: 1
+            Right motor: 0
+            
+            #### - Channel 4 ID  - ####
+            Left motor: 380
+            Right motor: 0
+            
+            #### - Channel 4 Flags  - ####
+            Left motor: 1
+            Right motor: 0
+            
+            #### - Trigger ID  - ####
+            Left motor: 346
+            Right motor: 0
+            
+            #### - Trigger Flags  - ####
+            Left motor: 1
+            Right motor: 0
+            
+            #### - Trigger Level  - ####
+            Left motor: 21845;213
+            Right motor: 0;0
+            
+            #### - Pretrigger Trigger  - ####
+            Left motor: 0;0
+            Right motor: 0;0
+            
+            #### - Update rate  - ####
+            Left motor: 193
+            Right motor: 100
+            
+            #### - Control  - ####
+            Left motor: 32813
+            Right motor: 0
+            
+            #### - -- SCOPE STATUS REGISTERS -- 
+ Status  - ####
+            Left motor: 16416
+            Right motor: 0
+            
+            #### - -- Record Count  - ####
+            Left motor: 341
+            Right motor: 0
+            
+            #### - -- Max Records  - ####
+            Left motor: 341
+            Right motor: 0
+            
+            #### - -- Record Size  - ####
+            Left motor: 6
+            Right motor: 0
+            
+            #### - -- Buffer Size  - ####
+            Left motor: 2048
+            Right motor: 2048
+            
+            #### - -- Time Stamp  - ####
+            Left motor: 5155
+            Right motor: 0
+            
+            #### - Recent channel 1 value  - ####
+            Left motor: 291;0
+            Right motor: 0;0
+            
+            #### - Recent channel 2 value  - ####
+            Left motor: 8778;21
+            Right motor: 0;0
+            
+            #### - Recent channel 3 value  - ####
+            Left motor: 65529;255
+            Right motor: 0;0
+            
+            #### - Recent channel 4 value  - ####
+            Left motor: 9069;21
+            Right motor: 0;0
+            
+            #### - Current Trigger value  - ####
+            Left motor: 65529;255
+            Right motor: 0;0
             
