@@ -10,7 +10,7 @@ from test import bit_high_low
 
 config = MotorConfig()
 
-class ReadValues():
+class Sandbox():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
     SERVER_IP_RIGHT="192.168.0.212"
@@ -402,7 +402,7 @@ class ReadValues():
             self.VBUSfile.close()
 
 if __name__ == "__main__":
-    readValues = ReadValues()
+    readValues = Sandbox()
     # asyncio.run(readValues.main())
 
     readValues.read_register()
