@@ -401,7 +401,18 @@ class Sandbox():
         self.ICfile = open("IContinous.txt", "w")
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
+            
+    def register_convertion_magic(register,format,signed):
+        format_1, format_2 = format.split(".")
+        if len(register) == 1:
+                bit_mask = (2**format_2) - 1
+                register_high = register[0] >> format_2
+                register_low = register[0] & bit_mask
+                if signed:
+                    value = get_twos_complement(format_1, register_high)
+                    
 
+                    
     
       
     async def main(self):
