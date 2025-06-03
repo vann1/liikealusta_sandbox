@@ -80,11 +80,6 @@ class ReadValues():
             response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
             self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
-            # HOME PRIMARY OPTIONS FLAG MAP - 
-            response_left = self.client_left.read_holding_registers(address=6414, count=1)
-            response_right = self.client_right.read_holding_registers(address=614, count=1)
-            self.write_to_file(registers_file, title="HOME PRIMARY OPTIONS FLAG MAP -:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
             # HOST CURRENT MAX LIMIT - 9.7 
             response_left = self.client_left.read_holding_registers(address=6414, count=1)
             response_right = self.client_right.read_holding_registers(address=614, count=1)
@@ -111,6 +106,21 @@ class ReadValues():
             decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
 
             self.write_to_file(registers_file, title="HighVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_left], right_vals=[response_right_high, decimal_normalized_right])
+
+            # MAX CURRENT SINCE STARTUP
+            response_left = self.client_left.read_holding_registers(address=576, count=2)
+            response_right = self.client_right.read_holding_registers(address=576, count=2)
+            self.write_to_file(registers_file, title="MAX CURRENT SINCE STARTUP", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
+
+            # MAX VOLTAGE SINCE STARTUP
+            response_left = self.client_left.read_holding_registers(address=578, count=2)
+            response_right = self.client_right.read_holding_registers(address=578, count=2)
+            self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
+
+            # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
+            response_left = self.client_left.read_holding_registers(address=6414, count=1)
+            response_right = self.client_right.read_holding_registers(address=614, count=1)
+            self.write_to_file(registers_file, title="HOME PRIMARY OPTIONS FLAG MAP -:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
             # User defined IPEAK - 2560
             response_left = self.client_left.read_holding_registers(address=5108, count=1)

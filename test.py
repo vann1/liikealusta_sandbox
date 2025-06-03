@@ -1,8 +1,10 @@
+from utils import is_nth_bit_on
 high_decimal = 2560 >> 7
 
-a = 10
-lower_decimal = 15
-result = high_decimal | lower_decimal
+HOME_PRIMARY_OPTIONS_VAL = 59343
+v = is_nth_bit_on(1, HOME_PRIMARY_OPTIONS_VAL)
+u = is_nth_bit_on(0, HOME_PRIMARY_OPTIONS_VAL)
+
 
 a = 20
 # print(moi)
