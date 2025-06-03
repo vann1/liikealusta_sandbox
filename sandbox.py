@@ -7,6 +7,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION
 
 config = MotorConfig()
 
@@ -21,10 +22,8 @@ class Sandbox():
     client_left.connect()
     logger = None
     wsclient = None
-
     
     async def on_message(self,msg):
-        
         event = extract_part("event=",msg)
         message = extract_part("message=",msg)
         if not message:
@@ -40,9 +39,10 @@ class Sandbox():
             self.ICfile.write(f"{self.ic}\n")
             self.VBUSfile.write(f"{self.VBUS}\n")
 
-    def write_to_file(self, file, title, left_vals, right_vals):
-        left_vals = ";".join([str(val) for val in left_vals])
-        right_vals = ";".join([str(val) for val in right_vals])
+    def write_to_file(self, file, title, left_vals, right_vals, definitions=False):
+        if not definitions:
+            left_vals = ";".join([str(val) for val in left_vals])
+            right_vals = ";".join([str(val) for val in right_vals])
             
         file.write(f"""
             #### - {title} - ####
@@ -50,6 +50,29 @@ class Sandbox():
             Right motor: {right_vals}
             """)
     
+    def get_active_bit_values(self, value, range=16):
+        active_bit_values = []
+        for n in range(range):
+            if utils.is_nth_bit_on(n, value):
+                active_bit_values.append(2**n)
+
+    def convert_bits_to_dict(self, value, dict="OEG_STATUS"):
+        definitions = []
+        if dict=="OEG_STATUS":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(OEG_MODE[value])
+        elif dict=="IEG_MODE":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(IEG_MODE[value])
+        elif dict=="IEG_MOTION":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(IEG_MOTION[value])
+
+        return "\n".join(definitions)
+
     def read_register(self):
         try:
             registers_file = open("registers.txt", "w")
@@ -222,7 +245,9 @@ class Sandbox():
             # OEG status
             response_right = self.client_right.read_holding_registers(address=104, count=1)
             response_left = self.client_left.read_holding_registers(address=104, count=1)
-            self.write_to_file(registers_file, title="OEG status:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
+            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
 
             # home position
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
@@ -379,7 +404,20 @@ class Sandbox():
         self.ICfile = open("IContinous.txt", "w")
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
-        
+            
+    def register_convertion_magic(register,format,signed):
+        format_1, format_2 = format.split(".")
+        if len(register) == 1:
+                bit_mask = (2**format_2) - 1
+                register_high = register[0] >> format_2
+                register_low = register[0] & bit_mask
+                if signed:
+                    value = get_twos_complement(format_1, register_high)
+                    
+
+                    
+    
+      
     async def main(self):
         try:
             await self.init()
