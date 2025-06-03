@@ -117,6 +117,9 @@ class ReadValues():
             left_VBUS = self.client_left.read_holding_registers(address=578, count=2)
             right_VBUS = self.client_right.read_holding_registers(address=578, count=2)
 
+            left_VBUS = left_VBUS.registers
+            right_VBUS = right_VBUS.registers
+
             ### Extract the high value part and deccimal part
             left_VBUS_high, left_VBUS_low = utils.bit_high_low_both(left_VBUS[1], 5)
             right_VBUS_high, right_VBUS_low = utils.bit_high_low_both(right_VBUS[1], 5)
