@@ -49,7 +49,7 @@
             
             #### - current revolutions: - ####
             Left motor: 14;37978
-            Right motor: 14;63154
+            Right motor: 14;63162
             
             #### - host control command mode: - ####
             Left motor: 0
@@ -96,8 +96,14 @@
             Right motor: 0
             
             #### - OEG status: - ####
-            Left motor: 71
-            Right motor: 71
+            Left motor: Enabled
+Homed
+Ready
+Default mode of operation
+            Right motor: Enabled
+Homed
+Ready
+Default mode of operation
             
             #### - home position: - ####
             Left motor: 37154;14

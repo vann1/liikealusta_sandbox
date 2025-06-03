@@ -50,11 +50,13 @@ class Sandbox():
             Right motor: {right_vals}
             """)
     
-    def get_active_bit_values(self, value, range=16):
+    def get_active_bit_values(self, value, range_val=16):
         active_bit_values = []
-        for n in range(range):
+        for n in range(range_val):
             if utils.is_nth_bit_on(n, value):
                 active_bit_values.append(2**n)
+                
+        return active_bit_values
 
     def convert_bits_to_dict(self, value, dict="OEG_STATUS"):
         definitions = []
@@ -405,14 +407,14 @@ class Sandbox():
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
             
-    def register_convertion_magic(register,format,signed):
-        format_1, format_2 = format.split(".")
-        if len(register) == 1:
-                bit_mask = (2**format_2) - 1
-                register_high = register[0] >> format_2
-                register_low = register[0] & bit_mask
-                if signed:
-                    value = get_twos_complement(format_1, register_high)
+    # def register_convertion_magic(register,format,signed):
+    #     format_1, format_2 = format.split(".")
+    #     if len(register) == 1:
+    #             bit_mask = (2**format_2) - 1
+    #             register_high = register[0] >> format_2
+    #             register_low = register[0] & bit_mask
+    #             if signed:
+    #                 value = get_twos_complement(format_1, register_high)
                     
 
                     
