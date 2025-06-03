@@ -392,6 +392,6 @@ class ReadValues():
 
 if __name__ == "__main__":
     readValues = ReadValues()
-    asyncio.run(readValues.main())
+    # asyncio.run(readValues.main())
 
-    # readValues.read_register()
+    readValues.read_register()
