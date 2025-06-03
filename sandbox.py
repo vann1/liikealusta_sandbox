@@ -39,9 +39,10 @@ class Sandbox():
             self.ICfile.write(f"{self.ic}\n")
             self.VBUSfile.write(f"{self.VBUS}\n")
 
-    def write_to_file(self, file, title, left_vals, right_vals):
-        left_vals = ";".join([str(val) for val in left_vals])
-        right_vals = ";".join([str(val) for val in right_vals])
+    def write_to_file(self, file, title, left_vals, right_vals, definitions=False):
+        if not definitions:
+            left_vals = ";".join([str(val) for val in left_vals])
+            right_vals = ";".join([str(val) for val in right_vals])
             
         file.write(f"""
             #### - {title} - ####
@@ -244,7 +245,9 @@ class Sandbox():
             # OEG status
             response_right = self.client_right.read_holding_registers(address=104, count=1)
             response_left = self.client_left.read_holding_registers(address=104, count=1)
-            self.write_to_file(registers_file, title="OEG status:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
+            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
 
             # home position
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
