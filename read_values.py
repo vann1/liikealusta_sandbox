@@ -4,7 +4,7 @@ from time import time
 from websocket_client import WebsocketClient
 import asyncio
 import utils as utils
-from motors_config import MotorConfig
+from liikealusta_sandbox.motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
 
