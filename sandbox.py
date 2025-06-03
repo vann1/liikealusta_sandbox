@@ -7,7 +7,7 @@ import utils as utils
 from liikealusta_sandbox.motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
-from oeg_mode_codes import OEG_MODE
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION
 
 config = MotorConfig()
 
@@ -22,10 +22,8 @@ class Sandbox():
     client_left.connect()
     logger = None
     wsclient = None
-
     
     async def on_message(self,msg):
-        
         event = extract_part("event=",msg)
         message = extract_part("message=",msg)
         if not message:
@@ -63,6 +61,14 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(OEG_MODE[value])
+        elif dict=="IEG_MODE":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(IEG_MODE[value])
+        elif dict=="IEG_MOTION":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(IEG_MOTION[value])
 
         return "\n".join(definitions)
 
