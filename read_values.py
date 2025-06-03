@@ -4,9 +4,11 @@ from time import time
 from websocket_client import WebsocketClient
 import asyncio
 import utils as utils
+from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
 
+config = MotorConfig()
 
 class ReadValues():
     SERVER_URL = "http://127.0.0.1:5001/"
@@ -365,7 +367,11 @@ class ReadValues():
             self.write_to_file(registers_file, title="Current Trigger value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
         finally:
             registers_file.close()
-                
+
+    def reset_ieg_mode(self):
+        self.client_left.write_register(address=config.IEG_MODE, value=0)
+        self.client_right.write_register(address=config.IEG_MODE, value=0)
+              
     async def init(self):
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
         self.wsclient = WebsocketClient(self.logger, on_message=self.on_message)
