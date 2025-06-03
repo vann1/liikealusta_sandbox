@@ -18,31 +18,33 @@ UACC32_RESOLUTION = 1 / (2**20)
 
 UCUR16_RESOLUTION = 1 / (2**7)
 UCUR16_LOW_MAX = 2**7
+UCUR32_DECIMAL_MAX = 2**23
+UVOLT32_DECIMAL_MAX = 2**21
 
 def started_from_exe():
     return getattr(sys, 'frozen', False)
 
-def find_venv_python():
-        for parent in get_current_path().parents:
+def find_venv_python(file):
+        for parent in get_current_path(file).parents:
                 if (parent / ".venv").exists():
                         return os.path.join(parent, ".venv\Scripts\python.exe")
         raise FileNotFoundError("Could not find project root (containing '.venv' folder)")
 
 def convert_to_revs(pfeedback):
-    decimal = pfeedback.registers[0] / 65535
-    num = pfeedback.registers[1]
+    decimal = pfeedback[0] / 65535
+    num = pfeedback[1]
     return num + decimal
 
 def get_exe_temp_dir():
         return getattr(sys, "_MEIPASS")
 
-def extract_part(part, message,delimiter="|"):
+def extract_part(part, message):
     start_idx = message.find(part)
     if start_idx == -1:
         return False
     
     start_idx += len(part)
-    pipe_idx = message.find(delimiter, start_idx)
+    pipe_idx = message.find("|", start_idx)
     if pipe_idx == -1:
         return False
     
@@ -151,6 +153,31 @@ def split_20bit_to_components(value):
     
     return sixteen_bit, four_bit
 
+def normlize_decimal_ucur32(value): 
+       return value / UCUR32_DECIMAL_MAX
+
+def normalize_decimal_uvolt32(value):
+       return value / UVOLT32_DECIMAL_MAX
+
+### TODO - tee geneerinen bitti shiftaus functio
+def combine_to_21bit(sixteen_bit_val, five_bit_val):
+        sixteen_bit_val = sixteen_bit_val & 0xFFFF
+        five_bit_val = five_bit_val & 31
+
+        result = (five_bit_val << 16) | sixteen_bit_val
+
+        return result
+
+def combine_to_23bit(sixteen_bit, seven_bit):
+    # Ensure inputs are within their bit limits
+    sixteen_bit = sixteen_bit & 0xFFFF
+    seven_bit = seven_bit & 0x7F      
+    
+    # Shift the 8-bit number 16 positions left and OR it with the 16-bit number
+    result = (seven_bit << 16) | sixteen_bit
+    
+    return result
+
 def combine_to_24bit(sixteen_bit, eight_bit):
     # Ensure inputs are within their bit limits
     sixteen_bit = sixteen_bit & 0xFFFF
@@ -172,15 +199,20 @@ def combine_to_20bit(sixteen_bit, four_bit):
     return result
 
 def get_twos_complement(bit, value):
-       is_highest_bit_on = value & 1 << (bit - 1)
+       """Bit tells how manieth bit 2^n"""
+       rer= 1 << bit
+       is_highest_bit_on = value & 1 << bit
 
        if is_highest_bit_on:
-                base = 2**(bit-1)
-                lower = value & 0x7F
+                base = 2**bit
+                if bit == 0:
+                        return -1
+                lower = (2**bit) -1
+                lower = value & lower
                 return (lower - base)
                 
        return value
-       
+
 def get_vel32_revs(high, low):
        whole_value_bits = high >> 8
        decimal_high_bits = high & 0xFF
@@ -237,6 +269,10 @@ def convert_vel_rpm_revs(rpm):
         return tuple with higher register value first
         8.24 format
         """
+        try:
+                rpm = int(rpm)
+        except ValueError:
+                raise
         if rpm < 0 or rpm > 350:
                 rpm = 350
         
@@ -252,6 +288,11 @@ def convert_acc_rpm_revs(rpm):
         return tuple with higher register value first
         12.20 format
         """
+        try:
+                rpm = int(rpm)
+        except ValueError:
+                raise
+        
         if rpm < 0 or rpm > 750:
                 rpm = 750
         
@@ -261,11 +302,11 @@ def convert_acc_rpm_revs(rpm):
         whole_num_register_bits = combine_12_4bit(int(whole), four_b)
         return (whole_num_register_bits, sixteen_b)
 
-def get_base_path():
+def get_base_path(file):
     if started_from_exe():
         return str(Path(sys.executable).resolve().parent)
     else:
-        return Path(os.path.abspath(__file__)).parent.parent
+        return Path(os.path.abspath(file)).parent.parent
 
 def get_current_path(file):
         return Path(file).parent
@@ -282,6 +323,7 @@ def bit_high_low_both(number, low_bit, output="both"):
                 return register_val_low
         else:
                 raise Exception
+                
 
 
 

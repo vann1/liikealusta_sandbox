@@ -3,6 +3,7 @@ from pymodbus.client import ModbusTcpClient
 from time import time
 from websocket_client import WebsocketClient
 import asyncio
+import utils as utils
 from utils import extract_part
 from test import bit_high_low
 
@@ -113,9 +114,26 @@ class ReadValues():
             self.write_to_file(registers_file, title="MAX CURRENT SINCE STARTUP", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
 
             # MAX VOLTAGE SINCE STARTUP
-            response_left = self.client_left.read_holding_registers(address=578, count=2)
-            response_right = self.client_right.read_holding_registers(address=578, count=2)
-            self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
+            left_VBUS = self.client_left.read_holding_registers(address=578, count=2)
+            right_VBUS = self.client_right.read_holding_registers(address=578, count=2)
+
+            ### Extract the high value part and deccimal part
+            left_VBUS_high, left_VBUS_low = utils.bit_high_low_both(left_VBUS[1], 5)
+            right_VBUS_high, right_VBUS_low = utils.bit_high_low_both(right_VBUS[1], 5)
+
+            left_vbus_decimal_val = utils.combine_to_21bit(left_VBUS[0], left_VBUS_low)
+            right_vbus_decimal_val = utils.combine_to_21bit(right_VBUS[0], right_VBUS_low)
+
+            left_vbus_decimal_val = utils.normalize_decimal_uvolt32(left_vbus_decimal_val)
+            right_vbus_decimal_val = utils.normalize_decimal_uvolt32(right_vbus_decimal_val)
+
+            ### CONVERT VBUS HIGH INTO ACTUAL VALUE IT USES TWO's COMPLEMENT
+            left_VBUS_high = utils.get_twos_complement(10, left_VBUS_high)
+            right_VBUS_high = utils.get_twos_complement(10, right_VBUS_high)
+
+            left_VBUS = left_VBUS_high + left_vbus_decimal_val
+            right_VBUS = right_VBUS_high + right_vbus_decimal_val
+            self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[left_VBUS], right_vals=[right_VBUS])
 
             # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
             response_left = self.client_left.read_holding_registers(address=6414, count=1)
