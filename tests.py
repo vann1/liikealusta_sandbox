@@ -60,7 +60,16 @@ def test_uacc32():
     assert sandbox.registers_convertion([0, 32], "12.20") == 2.0
     assert sandbox.registers_convertion([0, 48], "12.20") == 3.0
 
+def test_uvolt32():
+    result = sandbox.registers_convertion([65535, 65535], "11.21")
+    expected = 2047.999
+    diff = result - expected
+    assert diff < 0.001
 
-result = sandbox.registers_convertion([65535, 65535], "12.20")
+    assert sandbox.registers_convertion([0, 32], "11.21") == 1.0
+    assert sandbox.registers_convertion([0, 64], "11.21") == 2.0
+    assert sandbox.registers_convertion([0, 96], "11.21") == 3.0
+
+
 # result = sandbox.registers_convertion([65535, 16], "16.16", 3)
 # a = 10
