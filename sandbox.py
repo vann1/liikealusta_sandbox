@@ -420,6 +420,7 @@ class Sandbox():
                 # If signed checks whether if its two complement
                 if signed: 
                     register_high = utils.get_twos_complement(format_1 - 1, register_high)
+
                 return register_high + register_low_normalized
         else: # Two registers
             # Checks what's the format. Examples: 16.16, 8.24, 12.20
@@ -435,7 +436,9 @@ class Sandbox():
                 # If signed checks whether if its two complement
                 if signed: 
                     register_val_high = utils.get_twos_complement(format_1 - 1, register_val_high)
+                
                 return register_val_high + register_low_normalized
+
             else: # Examples: 32.0 20.12 30.2
                 # Format difference for seperating "shared" register
                 format_difference = 32 - format_1
@@ -449,7 +452,7 @@ class Sandbox():
                 if signed:
                     register_val_high = utils.get_twos_complement(format_1 - 1, register_val_high)
                 return register_val_high + register_low_normalized
-      
+              
     async def main(self):
         try:
             await self.init()
