@@ -31,6 +31,19 @@ def test_ucur16():
     assert sandbox.registers_convertion([128+64], "9.7") == 1.5
     assert sandbox.registers_convertion([128+32], "9.7") == 1.25
 
+def test_ucur32():
+    assert sandbox.registers_convertion([32768], "9.7") == 256.0
 
+    result = sandbox.registers_convertion([65535, 127], "9.23")
+    expected = 0.999999
+    diff = result - expected
+    assert diff < 0.001
+
+    assert sandbox.registers_convertion([0, 128], "9.23") == 1.0
+
+def test_uvel32():
+    pass
+
+sandbox.registers_convertion([0, 128], "9.23")
 # result = sandbox.registers_convertion([65535, 16], "16.16", 3)
 # a = 10
