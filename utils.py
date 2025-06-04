@@ -159,6 +159,9 @@ def normlize_decimal_ucur32(value):
 def normalize_decimal_uvolt32(value):
        return value / UVOLT32_DECIMAL_MAX
 
+def general_normalize_decimal(value, decimal_bit):
+        return value / 2**decimal_bit
+
 ### TODO - tee geneerinen bitti shiftaus functio
 def combine_to_21bit(sixteen_bit_val, five_bit_val):
         sixteen_bit_val = sixteen_bit_val & 0xFFFF
@@ -166,6 +169,10 @@ def combine_to_21bit(sixteen_bit_val, five_bit_val):
 
         result = (five_bit_val << 16) | sixteen_bit_val
 
+        return result
+
+def combine_bits(high_bit_part, low_bit_part):
+        result = (high_bit_part << 16) | low_bit_part
         return result
 
 def combine_to_23bit(sixteen_bit, seven_bit):
@@ -200,7 +207,6 @@ def combine_to_20bit(sixteen_bit, four_bit):
 
 def get_twos_complement(bit, value):
        """Bit tells how manieth bit 2^n"""
-       rer= 1 << bit
        is_highest_bit_on = value & 1 << bit
 
        if is_highest_bit_on:
