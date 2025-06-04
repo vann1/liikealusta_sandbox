@@ -94,7 +94,14 @@ def test_volt32():
     assert sandbox.registers_convertion([0, 32+32768], "11.21", signed=True) == -1023.0
     assert sandbox.registers_convertion([0, 32+64+32768], "11.21", signed=True) == -1021.0
 
-result = sandbox.registers_convertion([0, 32+32768], "11.21", signed=True)
+def test_cur32():
+    assert sandbox.registers_convertion([0, 32768], "9.23", signed=True) == -256.0
+    assert sandbox.registers_convertion([0, 32768+128], "9.23", signed=True) == -255.0
+    assert sandbox.registers_convertion([0, 32768+256], "9.23", signed=True) == -254.0
+    assert sandbox.registers_convertion([0, 32768+128+256], "9.23", signed=True) == -253.0
+    assert sandbox.registers_convertion([0, 128], "9.23", signed=True) == 1.0
+
+sandbox.registers_convertion([0, 32768+128], "9.23", signed=True)
 a =10
 # result = sandbox.registers_convertion([65535, 16], "16.16", 3)
 # a = 10
