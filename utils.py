@@ -213,8 +213,8 @@ def get_twos_complement(bit, value):
                 base = 2**bit
                 if bit == 0:
                         return -1
-                lower = (2**bit) -1
-                lower = value & lower
+                lower_mask = (2**bit) -1
+                lower = value & lower_mask
                 return (lower - base)
                 
        return value
