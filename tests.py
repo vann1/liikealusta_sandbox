@@ -38,12 +38,22 @@ def test_ucur32():
     expected = 0.999999
     diff = result - expected
     assert diff < 0.001
-
     assert sandbox.registers_convertion([0, 128], "9.23") == 1.0
 
 def test_uvel32():
-    pass
+    result = sandbox.registers_convertion([65535, 65535], "8.24")
+    expected = 255.999
+    diff = result - expected
+    assert diff < 0.001
 
-sandbox.registers_convertion([0, 128], "9.23")
+    result = sandbox.registers_convertion([0, 256], "8.24") == 1.0
+    result = sandbox.registers_convertion([0, 512], "8.24") == 2.0
+    result = sandbox.registers_convertion([0, 0], "8.24") == 0.0
+
+
+
+
+
+
 # result = sandbox.registers_convertion([65535, 16], "16.16", 3)
 # a = 10
