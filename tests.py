@@ -50,10 +50,17 @@ def test_uvel32():
     result = sandbox.registers_convertion([0, 512], "8.24") == 2.0
     result = sandbox.registers_convertion([0, 0], "8.24") == 0.0
 
+def test_uacc32():
+    result = sandbox.registers_convertion([65535, 65535], "12.20")
+    expected = 4095.999
+    diff = result - expected
+    assert diff < 0.001
+
+    assert sandbox.registers_convertion([0, 16], "12.20") == 1.0
+    assert sandbox.registers_convertion([0, 32], "12.20") == 2.0
+    assert sandbox.registers_convertion([0, 48], "12.20") == 3.0
 
 
-
-
-
+result = sandbox.registers_convertion([65535, 65535], "12.20")
 # result = sandbox.registers_convertion([65535, 16], "16.16", 3)
 # a = 10
