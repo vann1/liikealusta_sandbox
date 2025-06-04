@@ -4,11 +4,12 @@ from time import time
 from websocket_client import WebsocketClient
 import asyncio
 import utils as utils
-
+from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
 from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION
 
+config = MotorConfig()
 
 class Sandbox():
     SERVER_URL = "http://127.0.0.1:5001/"
@@ -17,8 +18,6 @@ class Sandbox():
     SERVER_PORT=502
     client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
     client_right = ModbusTcpClient(host=SERVER_IP_RIGHT, port=SERVER_PORT)
-    client_right.connect()
-    client_left.connect()
     logger = None
     wsclient = None
     
@@ -398,6 +397,8 @@ class Sandbox():
         self.client_right.write_register(address=config.IEG_MODE, value=0)
               
     async def init(self):
+        self.client_right.connect()
+        self.client_left.connect()
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
         self.wsclient = WebsocketClient(self.logger, on_message=self.on_message)
         self.BTfile = open("BoardTemp.txt", "w")
@@ -406,7 +407,7 @@ class Sandbox():
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
             
-    def registers_convertion(register,format,signed):
+    def registers_convertion(self, register,format,signed=False):
         format_1, format_2 = format.split(".")
         format_1 = int(format_1)
         format_2 = int(format_2)
@@ -448,9 +449,6 @@ class Sandbox():
                 if signed:
                     register_val_high = utils.get_twos_complement(format_1 - 1, register_val_high)
                 return register_val_high + register_low_normalized
-
-    
-    
       
     async def main(self):
         try:
@@ -477,5 +475,5 @@ if __name__ == "__main__":
     readValues = Sandbox()
     # asyncio.run(readValues.main())
 
-    readValues.read_register()
+    # readValues.read_register()
     # readValues.reset_ieg_mode()
