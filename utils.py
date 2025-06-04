@@ -329,7 +329,49 @@ def bit_high_low_both(number, low_bit, output="both"):
                 return register_val_low
         else:
                 raise Exception
-                
+def registers_convertion(register,format,signed):
+        format_1, format_2 = format.split(".")
+        format_1 = int(format_1)
+        format_2 = int(format_2)
+
+        if len(register) == 1: # Single register Example 9.7
+                # Seperates single register by format
+                register_high, register_low = bit_high_low_both(register[0], format_2)
+                # Normalizes decimal between 0-1
+                register_low_normalized = general_normalize_decimal(register_low, format_2)
+                # If signed checks whether if its two complement
+                if signed: 
+                        register_high = get_twos_complement(format_1 - 1, register_high)
+                return register_high + register_low_normalized
+        else: # Two registers
+                # Checks what's the format. Examples: 16.16, 8.24, 12.20
+                if format_1 <= 16 and format_2 >= 16: 
+                        # Format difference for seperating "shared" register
+                        format_difference = 16 - format_1 
+                        # Seperates "shared" register
+                        register_val_high, register_val_low = bit_high_low_both(register[1], format_difference)
+                        # Combines decimal values into a single binary
+                        register_val_low = combine_bits(register_val_low,register[0])
+                        # Normalizes decimal between 0-1
+                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
+                        # If signed checks whether if its two complement
+                        if signed: 
+                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
+                        return register_val_high + register_low_normalized
+                else: # Examples: 32.0 20.12 30.2
+                        # Format difference for seperating "shared" register
+                        format_difference = 32 - format_1
+                        # Seperates "shared" register
+                        register_val_high, register_val_low = bit_high_low_both(register[0], format_difference)
+                        # Combines integer values into a single binary
+                        register_val_high = combine_bits(register[1],register_val_high)
+                        # Normalizes decimal between 0-1
+                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
+                        # If signed checks whether if its two complement
+                        if signed:
+                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
+                        return register_val_high + register_low_normalized
+                        
 
 
 
