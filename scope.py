@@ -9,12 +9,12 @@ class Scope():
     def __init__(self):
         SERVER_IP_LEFT="192.168.0.211"
         SERVER_PORT=502
-        client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
+        self.client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
         self.monitor_time = 10
         self.previous_time = None
         self.triggered = False
         self.plottable_points = None
-        client_left.connect()
+        self.client_left.connect()
         self.delta_time = 0
    
         # cmd line arguments
@@ -97,4 +97,5 @@ class Scope():
         plt.show()
 if __name__ == "__main__":
     scope = Scope()
+    scope.draw_graph()
     
