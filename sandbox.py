@@ -395,6 +395,19 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
             self.write_to_file(registers_file, title="Host Current ", left_vals=[response_left], right_vals=[response_right])
+            # Ilimitminus 40 9.23 SIGNED
+            response_left = self.client_left.read_holding_registers(address=40, count=2)
+            response_right = self.client_right.read_holding_registers(address=40, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=True)  
+            self.write_to_file(registers_file, title="Ilimitminus ", left_vals=[response_left], right_vals=[response_right])
+            
+            # Ilimitsplus 42 9.23 SIGNED
+            response_left = self.client_left.read_holding_registers(address=42, count=2)
+            response_right = self.client_right.read_holding_registers(address=42, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=True)  
+            self.write_to_file(registers_file, title="Ilimitsplus ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
