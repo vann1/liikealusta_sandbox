@@ -6,7 +6,7 @@ import time as time
 import matplotlib.pyplot as plt
 
 class Scope():
-    def __init__(self, arguments): #argumens trigger_register, trigger_register_format, trigger_register_signed, count, trigger_value
+    def __init__(self, arguments): #argumens trigger_register, trigger_register_format, trigger_register_signed, count, trigger_level
         self.arguments = arguments
         SERVER_IP_LEFT="192.168.0.211"
         SERVER_PORT=502
@@ -19,12 +19,12 @@ class Scope():
         client_left.connect()
    
         # cmd line arguments
-        self.trigger_register = int(arguments[0])
-        self.trigger_register_format = arguments[1]
-        self.trigger_register_signed = arguments[2]
-        self.count = int(arguments[3])
-        self.trigger_value = float(arguments[4])
-        self.window_size = int(arguments[5])
+        self.trigger_register = 4306
+        self.trigger_register_format = "8.24"
+        self.trigger_register_signed = False
+        self.count = 2
+        self.trigger_level = 0.5
+        self.window_size = 100
         
         # deque array for datapoints
         self.datapoint_1 = deque(maxlen=self.window_size)
@@ -43,8 +43,8 @@ class Scope():
         proportional = self.client_left.read_holding_registers(address=5402, count=1)
         integral = self.client_left.read_holding_registers(address=5403, count=1)
         derivative = self.client_left.read_holding_registers(address=5405, count=1)
-        trigger = self.client_left.read_holding_registers(address=self.trigger_register, count=self.count)
-        return (proportional, integral, derivative,trigger)
+        trigger_value = self.client_left.read_holding_registers(address=self.trigger_register, count=self.count)
+        return (proportional, integral, derivative,trigger_value)
     
     def draw_graph(self):
         while self.monitor_time > 0:
@@ -53,8 +53,8 @@ class Scope():
                 self.previous_time = time.time()
             else:
                 self.previous_time = time.time()
-            proportional, integral, derivative, trigger = self.poll_data()
-            trigger = utils.registers_convertion(trigger.registers[0], self.trigger_register_format, self.trigger_register_signed)
+            proportional, integral, derivative, trigger_value = self.poll_data()
+            trigger_value = utils.registers_convertion(trigger_value.registers, self.trigger_register_format, self.trigger_register_signed)
             
             if not self.triggered:
                 self.datapoint_1.append(proportional.registers[0])
@@ -67,7 +67,7 @@ class Scope():
                 self.plottable_points_3.append(derivative.registers[0])
                 self.plottable_points_4.append(time.time())
             
-            if self.triggered or trigger > self.trigger_value:
+            if self.triggered or trigger_value > 0.5:
                    if self.triggered == False:
                         self.plottable_points_1 = list(self.datapoint_1.copy)
                         self.plottable_points_2 = list(self.datapoint_2.copy)
