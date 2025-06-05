@@ -105,7 +105,7 @@ class Scope():
         # plt.plot(self.plottable_time, self.plottable_points_3, label="Derivative", color="green")
         # plt.plot(self.plottable_time, self.plottable_points_4, label="Perror", color="red")
         plt.plot(self.plottable_time, self.plottable_points_5, label="Current position", color="green")
-        plt.plot(self.plottable_time, self.plottable_points_6, label="Target position", color="red")
+        plt.plot(self.plottable_time, self.plottable_points_6, label="Target position", color="red", linestyle=':')
 
         plt.xlabel("Time")
         plt.ylabel("Values")
