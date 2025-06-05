@@ -85,9 +85,9 @@ class Scope():
         
             time.sleep(0.05)
         plt.figure(figsize=(10,6))
-        plt.plot(self.plottable_time, self.plottable_points_1, label="Proportional",color="brown")
-        plt.plot(self.plottable_time, self.plottable_points_2, label="Integral", color="orange")
-        plt.plot(self.plottable_time, self.plottable_points_3, label="Derivative", color="green")
+        # plt.plot(self.plottable_time, self.plottable_points_1, label="Proportional",color="brown")
+        # plt.plot(self.plottable_time, self.plottable_points_2, label="Integral", color="orange")
+        # plt.plot(self.plottable_time, self.plottable_points_3, label="Derivative", color="green")
         plt.plot(self.plottable_time, self.plottable_points_4, label="Perror", color="red")
         plt.xlabel("Time")
         plt.ylabel("Values")
