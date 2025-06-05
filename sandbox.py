@@ -439,5 +439,5 @@ if __name__ == "__main__":
     readValues = Sandbox()
     # asyncio.run(readValues.main())
 
-    # readValues.read_register()
+    readValues.read_register()
     # readValues.reset_ieg_mode()
