@@ -61,12 +61,12 @@ class Scope():
                 self.previous_time = time.time()
             else:
                 self.previous_time = time.time()
-            proportional, integral, derivative, perror, trigger_value = self.poll_data()
+            proportional, integral, derivative, perror,pfeedback,pcommand, trigger_value = self.poll_data()
             trigger_value = utils.registers_convertion(trigger_value.registers, format="8.24", signed=True)
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
-            pfeedback = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
-            pcommand = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
+            pfeedback = utils.registers_convertion(register=pfeedback.registers, format="16.16", signed=True)
+            pcommand = utils.registers_convertion(register=pcommand.registers, format="16.16", signed=True)
 
             if not self.triggered:
                 self.datapoint_1.append(proportional.registers[0])
