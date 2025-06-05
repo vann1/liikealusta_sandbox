@@ -159,8 +159,11 @@ def normlize_decimal_ucur32(value):
 def normalize_decimal_uvolt32(value):
        return value / UVOLT32_DECIMAL_MAX
 
-def general_normalize_decimal(value, decimal_bit):
-        return value / 2**decimal_bit
+def unnormalize_decimal(decimal, max_n):
+        return decimal * 2**max_n
+
+def general_normalize_decimal(value, max_n):
+        return value / 2**max_n
 
 ### TODO - tee geneerinen bitti shiftaus functio
 def combine_to_21bit(sixteen_bit_val, five_bit_val):

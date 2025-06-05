@@ -389,6 +389,12 @@ class Sandbox():
             response_left = self.client_left.read_holding_registers(address=414, count=2)
             response_right = self.client_right.read_holding_registers(address=414, count=2)
             self.write_to_file(registers_file, title="Current Trigger value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
+            # Host current UCUR16 9.7 4310
+            response_left = self.client_left.read_holding_registers(address=4310, count=1)
+            response_right = self.client_right.read_holding_registers(address=4310, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            self.write_to_file(registers_file, title="Host Current ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
@@ -407,52 +413,7 @@ class Sandbox():
         self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
             
-    def registers_convertion(self, register,format,signed=False):
-        format_1, format_2 = format.split(".")
-        format_1 = int(format_1)
-        format_2 = int(format_2)
-        
-        if len(register) == 1: # Single register Example 9.7
-                # Seperates single register by format
-                register_high, register_low = utils.bit_high_low_both(register[0], format_2)
-                # Normalizes decimal between 0-1
-                register_low_normalized = utils.general_normalize_decimal(register_low, format_2)
-                # If signed checks whether if its two complement
-                if signed: 
-                    register_high = utils.get_twos_complement(format_1 - 1, register_high)
 
-                return register_high + register_low_normalized
-        else: # Two registers
-            # Checks what's the format. Examples: 16.16, 8.24, 12.20
-            if format_1 <= 16 and format_2 >= 16: 
-                # Format difference for seperating "shared" register
-                format_difference = 16 - format_1 
-                # Seperates "shared" register
-                register_val_high, register_val_low = utils.bit_high_low_both(register[1], format_difference)
-                # Combines decimal values into a single binary
-                register_val_low = utils.combine_bits(register_val_low,register[0])
-                # Normalizes decimal between 0-1
-                register_low_normalized = utils.general_normalize_decimal(register_val_low, format_2)
-                # If signed checks whether if its two complement
-                if signed: 
-                    register_val_high = utils.get_twos_complement(format_1 - 1, register_val_high)
-                
-                return register_val_high + register_low_normalized
-
-            else: # Examples: 32.0 20.12 30.2
-                # Format difference for seperating "shared" register
-                format_difference = 32 - format_1
-                # Seperates "shared" register
-                register_val_high, register_val_low = utils.bit_high_low_both(register[0], format_difference)
-                # Combines integer values into a single binary
-                register_val_high = utils.combine_bits(register[1],register_val_high)
-                # Normalizes decimal between 0-1
-                register_low_normalized = utils.general_normalize_decimal(register_val_low, format_2)
-                # If signed checks whether if its two complement
-                if signed:
-                    register_val_high = utils.get_twos_complement(format_1 - 1, register_val_high)
-                return register_val_high + register_low_normalized
-              
     async def main(self):
         try:
             await self.init()
