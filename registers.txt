@@ -28,12 +28,12 @@
             Right motor: 410;0.0
             
             #### - HOST CURRENT MAX LIMIT - 9.7 : - ####
-            Left motor: 15;4114
-            Right motor: 6;62272
+            Left motor: 4;20178
+            Right motor: 4;38312
             
             #### - MAX VOLTAGE SINCE STARTUP - ####
-            Left motor: 338.6881332397461
-            Right motor: 340.4527587890625
+            Left motor: 339.638090133667
+            Right motor: 341.41940689086914
             
             #### - HOME PRIMARY OPTIONS FLAG MAP -: - ####
             Left motor: 59343
@@ -48,8 +48,8 @@
             Right motor: 1
             
             #### - current revolutions: - ####
-            Left motor: 14;37978
-            Right motor: 14;63162
+            Left motor: 14;37426
+            Right motor: 14;37426
             
             #### - host control command mode: - ####
             Left motor: 0
@@ -119,47 +119,47 @@ Default mode of operation
             
             #### - -- SCOPE CONTROL REGISTERS -- 
  Channel 1 ID  - ####
-            Left motor: 382
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 1 Flags  - ####
-            Left motor: 1
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 2 ID  - ####
-            Left motor: 378
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 2 Flags  - ####
-            Left motor: 1
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 3 ID  - ####
-            Left motor: 346
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 3 Flags  - ####
-            Left motor: 1
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 4 ID  - ####
-            Left motor: 380
+            Left motor: 0
             Right motor: 0
             
             #### - Channel 4 Flags  - ####
-            Left motor: 1
+            Left motor: 0
             Right motor: 0
             
             #### - Trigger ID  - ####
-            Left motor: 346
+            Left motor: 0
             Right motor: 0
             
             #### - Trigger Flags  - ####
-            Left motor: 1
+            Left motor: 0
             Right motor: 0
             
             #### - Trigger Level  - ####
-            Left motor: 21845;213
+            Left motor: 0;0
             Right motor: 0;0
             
             #### - Pretrigger Trigger  - ####
@@ -167,28 +167,28 @@ Default mode of operation
             Right motor: 0;0
             
             #### - Update rate  - ####
-            Left motor: 193
+            Left motor: 100
             Right motor: 100
             
             #### - Control  - ####
-            Left motor: 32813
+            Left motor: 0
             Right motor: 0
             
             #### - -- SCOPE STATUS REGISTERS -- 
  Status  - ####
-            Left motor: 16416
+            Left motor: 0
             Right motor: 0
             
             #### - -- Record Count  - ####
-            Left motor: 341
+            Left motor: 0
             Right motor: 0
             
             #### - -- Max Records  - ####
-            Left motor: 341
+            Left motor: 0
             Right motor: 0
             
             #### - -- Record Size  - ####
-            Left motor: 6
+            Left motor: 0
             Right motor: 0
             
             #### - -- Buffer Size  - ####
@@ -196,26 +196,38 @@ Default mode of operation
             Right motor: 2048
             
             #### - -- Time Stamp  - ####
-            Left motor: 5155
+            Left motor: 0
             Right motor: 0
             
             #### - Recent channel 1 value  - ####
-            Left motor: 291;0
+            Left motor: 0;0
             Right motor: 0;0
             
             #### - Recent channel 2 value  - ####
-            Left motor: 8778;21
+            Left motor: 0;0
             Right motor: 0;0
             
             #### - Recent channel 3 value  - ####
-            Left motor: 65529;255
+            Left motor: 0;0
             Right motor: 0;0
             
             #### - Recent channel 4 value  - ####
-            Left motor: 9069;21
+            Left motor: 0;0
             Right motor: 0;0
             
             #### - Current Trigger value  - ####
-            Left motor: 65529;255
+            Left motor: 0;0
             Right motor: 0;0
+            
+            #### - Host Current  - ####
+            Left motor: 20.0
+            Right motor: 20.0
+            
+            #### - Ilimitminus  - ####
+            Left motor: -14.9921875
+            Right motor: -14.9921875
+            
+            #### - Ilimitsplus  - ####
+            Left motor: 14.9921875
+            Right motor: 14.9921875
             
