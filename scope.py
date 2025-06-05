@@ -18,7 +18,7 @@ class Scope():
         self.delta_time = 0
    
         # cmd line arguments
-        self.trigger_register = 4306
+        self.trigger_register = 344
         self.trigger_register_format = "8.24"
         self.trigger_register_signed = False
         self.count = 2
@@ -56,7 +56,8 @@ class Scope():
             else:
                 self.previous_time = time.time()
             proportional, integral, derivative, perror, trigger_value = self.poll_data()
-            trigger_value = utils.registers_convertion(trigger_value.registers, format="8.24", signed=False)
+            trigger_value = utils.registers_convertion(trigger_value.registers, format="8.24", signed=True)
+            trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             if not self.triggered:
                 self.datapoint_1.append(proportional.registers[0])
