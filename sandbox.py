@@ -126,6 +126,13 @@ class Sandbox():
             response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=False)  
             self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.23 :", left_vals=[response_left], right_vals=[response_right])
 
+            # MAX CURRENT SINCE STARTUP UCUR32
+            response_left = self.client_left.read_holding_registers(address=576, count=2)
+            response_right = self.client_right.read_holding_registers(address=576, count=2)
+            response_left_high, response_left_low = bit_high_low(response_left.registers[1], 7)
+            response_right_high, response_right_low = bit_high_low(response_right.registers[1], 7)
+            self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.7 :", left_vals=[response_left_high, response_left.registers[0]], right_vals=[response_right_high, response_right.registers[0]])
+
             # MAX VOLTAGE SINCE STARTUP 11.21
             response_left = self.client_left.read_holding_registers(address=578, count=2)
             response_right = self.client_right.read_holding_registers(address=578, count=2)
