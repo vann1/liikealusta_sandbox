@@ -429,6 +429,13 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)  
             self.write_to_file(registers_file, title="MaxFollowingErrorTime ", left_vals=[response_left], right_vals=[response_right])
+            
+            # ITrip 9203 
+            response_left = self.client_left.read_holding_registers(address=9203, count=1)
+            response_right = self.client_right.read_holding_registers(address=9203, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            self.write_to_file(registers_file, title="ITrip ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
