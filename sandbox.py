@@ -135,26 +135,8 @@ class Sandbox():
             # MAX VOLTAGE SINCE STARTUP
             left_VBUS = self.client_left.read_holding_registers(address=578, count=2)
             right_VBUS = self.client_right.read_holding_registers(address=578, count=2)
-
-            left_VBUS = left_VBUS.registers
-            right_VBUS = right_VBUS.registers
-
-            ### Extract the high value part and deccimal part
-            left_VBUS_high, left_VBUS_low = utils.bit_high_low_both(left_VBUS[1], 5)
-            right_VBUS_high, right_VBUS_low = utils.bit_high_low_both(right_VBUS[1], 5)
-
-            left_vbus_decimal_val = utils.combine_to_21bit(left_VBUS[0], left_VBUS_low)
-            right_vbus_decimal_val = utils.combine_to_21bit(right_VBUS[0], right_VBUS_low)
-
-            left_vbus_decimal_val = utils.normalize_decimal_uvolt32(left_vbus_decimal_val)
-            right_vbus_decimal_val = utils.normalize_decimal_uvolt32(right_vbus_decimal_val)
-
-            ### CONVERT VBUS HIGH INTO ACTUAL VALUE IT USES TWO's COMPLEMENT
-            left_VBUS_high = utils.get_twos_complement(10, left_VBUS_high)
-            right_VBUS_high = utils.get_twos_complement(10, right_VBUS_high)
-
-            left_VBUS = left_VBUS_high + left_vbus_decimal_val
-            right_VBUS = right_VBUS_high + right_vbus_decimal_val
+            left_VBUS = utils.registers_convertion(left_VBUS.registers, format="11.21", signed=True)
+            right_VBUS = utils.registers_convertion(right_VBUS.registers, format="11.21", signed=True)
             self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[left_VBUS], right_vals=[right_VBUS])
 
             # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
