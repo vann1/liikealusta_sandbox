@@ -124,7 +124,7 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=576, count=2)
             response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=False)  
-            self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.23 :", left_vals=[response_left], right_vals=[response_right])
+            self.write_to_file(registers_file, title="Max current observed ", left_vals=[response_left], right_vals=[response_right])
 
             # MAX VOLTAGE SINCE STARTUP 11.21
             response_left = self.client_left.read_holding_registers(address=578, count=2)
