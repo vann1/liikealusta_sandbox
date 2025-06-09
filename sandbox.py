@@ -139,11 +139,6 @@ class Sandbox():
             right_VBUS = utils.registers_convertion(right_VBUS.registers, format="11.21", signed=True)
             self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[left_VBUS], right_vals=[right_VBUS])
 
-            # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
-            response_left = self.client_left.read_holding_registers(address=6414, count=1)
-            response_right = self.client_right.read_holding_registers(address=614, count=1)
-            self.write_to_file(registers_file, title="HOME PRIMARY OPTIONS FLAG MAP -:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
             # User defined IPEAK - 2560
             response_left = self.client_left.read_holding_registers(address=5108, count=1)
             response_right = self.client_right.read_holding_registers(address=5108, count=1)
