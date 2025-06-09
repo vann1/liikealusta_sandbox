@@ -129,8 +129,8 @@ class Sandbox():
             # MAX VOLTAGE SINCE STARTUP 11.21
             response_left = self.client_left.read_holding_registers(address=578, count=2)
             response_right = self.client_right.read_holding_registers(address=578, count=2)
-            response_left = utils.registers_convertion(response_left.registers, format="11.21", signed=True)        
-            response_right = utils.registers_convertion(response_right.registers, format="11.21", signed=True)  
+            response_left = utils.registers_convertion(response_left.registers, format="11.21", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="11.21", signed=False)  
             self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP ",  left_vals=[response_left], right_vals=[response_right])
 
             # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
