@@ -408,6 +408,20 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=True)        
             response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=True)  
             self.write_to_file(registers_file, title="Ilimitsplus ", left_vals=[response_left], right_vals=[response_right])
+            
+            # PErrorMin
+            response_left = self.client_left.read_holding_registers(address=384, count=2)
+            response_right = self.client_right.read_holding_registers(address=384, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)  
+            self.write_to_file(registers_file, title="PErrorMin ", left_vals=[response_left], right_vals=[response_right])
+        
+            # PErrorMax
+            response_left = self.client_left.read_holding_registers(address=386, count=2)
+            response_right = self.client_right.read_holding_registers(address=386, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)  
+            self.write_to_file(registers_file, title="PErrorMax ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
