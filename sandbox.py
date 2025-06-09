@@ -483,8 +483,8 @@ class Sandbox():
             self.VBUSfile.close()
 
 if __name__ == "__main__":
-    readValues = Sandbox()
+    sandbox = Sandbox()
     # asyncio.run(readValues.main())
 
-    # readValues.read_register()
+    sandbox.read_register()
     # readValues.reset_ieg_mode()
