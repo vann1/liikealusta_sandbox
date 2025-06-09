@@ -430,6 +430,12 @@ class Sandbox():
             response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)  
             self.write_to_file(registers_file, title="MaxFollowingError ", left_vals=[response_left], right_vals=[response_right])
             
+            # MaxFollowingErrorTime 5117 
+            response_left = self.client_left.read_holding_registers(address=5117, count=1)
+            response_right = self.client_right.read_holding_registers(address=5117, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)  
+            self.write_to_file(registers_file, title="MaxFollowingErrorTime ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
