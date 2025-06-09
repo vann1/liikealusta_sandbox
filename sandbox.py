@@ -123,7 +123,6 @@ class Sandbox():
             response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
             decimal_normalized_left = response_left_low / UVOLT16_DECIMAL_MAX
             decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
-
             self.write_to_file(registers_file, title="HighVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_left], right_vals=[response_right_high, decimal_normalized_right])
 
             # MAX CURRENT SINCE STARTUP
@@ -257,131 +256,6 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=5104, count=1)
             self.write_to_file(registers_file, title="FaultStop: ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # Channel 1 ID
-            response_left = self.client_left.read_holding_registers(address=4100, count=1)
-            response_right = self.client_right.read_holding_registers(address=4100, count=1)
-            self.write_to_file(registers_file, title="-- SCOPE CONTROL REGISTERS -- \n Channel 1 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 1 Flags
-            response_left = self.client_left.read_holding_registers(address=4101, count=1)
-            response_right = self.client_right.read_holding_registers(address=4101, count=1)
-            self.write_to_file(registers_file, title="Channel 1 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 2 ID
-            response_left = self.client_left.read_holding_registers(address=4102, count=1)
-            response_right = self.client_right.read_holding_registers(address=4102, count=1)
-            self.write_to_file(registers_file, title="Channel 2 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 2 Flags
-            response_left = self.client_left.read_holding_registers(address=4103, count=1)
-            response_right = self.client_right.read_holding_registers(address=4103, count=1)
-            self.write_to_file(registers_file, title="Channel 2 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 3 ID
-            response_left = self.client_left.read_holding_registers(address=4104, count=1)
-            response_right = self.client_right.read_holding_registers(address=4104, count=1)
-            self.write_to_file(registers_file, title="Channel 3 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 3 Flags
-            response_left = self.client_left.read_holding_registers(address=4105, count=1)
-            response_right = self.client_right.read_holding_registers(address=4105, count=1)
-            self.write_to_file(registers_file, title="Channel 3 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 4 ID
-            response_left = self.client_left.read_holding_registers(address=4106, count=1)
-            response_right = self.client_right.read_holding_registers(address=4106, count=1)
-            self.write_to_file(registers_file, title="Channel 4 ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Channel 4 Flags
-            response_left = self.client_left.read_holding_registers(address=4107, count=1)
-            response_right = self.client_right.read_holding_registers(address=4107, count=1)
-            self.write_to_file(registers_file, title="Channel 4 Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Trigger ID
-            response_left = self.client_left.read_holding_registers(address=4108, count=1)
-            response_right = self.client_right.read_holding_registers(address=4108, count=1)
-            self.write_to_file(registers_file, title="Trigger ID ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Trigger Flags
-            response_left = self.client_left.read_holding_registers(address=4109, count=1)
-            response_right = self.client_right.read_holding_registers(address=4109, count=1)
-            self.write_to_file(registers_file, title="Trigger Flags ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Trigger Level
-            response_left = self.client_left.read_holding_registers(address=4110, count=2)
-            response_right = self.client_right.read_holding_registers(address=4110, count=2)
-            self.write_to_file(registers_file, title="Trigger Level ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Pretrigger Trigger
-            response_left = self.client_left.read_holding_registers(address=4112, count=2)
-            response_right = self.client_right.read_holding_registers(address=4112, count=2)
-            self.write_to_file(registers_file, title="Pretrigger Trigger ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Update Rate
-            response_left = self.client_left.read_holding_registers(address=4114, count=1)
-            response_right = self.client_right.read_holding_registers(address=4114, count=1)
-            self.write_to_file(registers_file, title="Update rate ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # Control
-            response_left = self.client_left.read_holding_registers(address=4115, count=1)
-            response_right = self.client_right.read_holding_registers(address=4115, count=1)
-            self.write_to_file(registers_file, title="Control ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # SCOPE STATUS REGISTERS
-            ### Status
-            response_left = self.client_left.read_holding_registers(address=400, count=1)
-            response_right = self.client_right.read_holding_registers(address=400, count=1)
-            self.write_to_file(registers_file, title="-- SCOPE STATUS REGISTERS -- \n Status ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])            
-
-            ### Status
-            response_left = self.client_left.read_holding_registers(address=401, count=1)
-            response_right = self.client_right.read_holding_registers(address=401, count=1)
-            self.write_to_file(registers_file, title="-- Record Count ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])            
-
-            ### Max Records
-            response_left = self.client_left.read_holding_registers(address=402, count=1)
-            response_right = self.client_right.read_holding_registers(address=402, count=1)
-            self.write_to_file(registers_file, title="-- Max Records ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])  
-
-            ### Record Size
-            response_left = self.client_left.read_holding_registers(address=403, count=1)
-            response_right = self.client_right.read_holding_registers(address=403, count=1)
-            self.write_to_file(registers_file, title="-- Record Size ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])  
-
-            ### Buffer Size
-            response_left = self.client_left.read_holding_registers(address=404, count=1)
-            response_right = self.client_right.read_holding_registers(address=404, count=1)
-            self.write_to_file(registers_file, title="-- Buffer Size ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])  
-
-            ### Timestamp
-            response_left = self.client_left.read_holding_registers(address=405, count=1)
-            response_right = self.client_right.read_holding_registers(address=405, count=1)
-            self.write_to_file(registers_file, title="-- Time Stamp ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])  
-
-            # Channel1
-            response_left = self.client_left.read_holding_registers(address=406, count=2)
-            response_right = self.client_right.read_holding_registers(address=406, count=2)
-            self.write_to_file(registers_file, title="Recent channel 1 value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Channel 2
-            response_left = self.client_left.read_holding_registers(address=408, count=2)
-            response_right = self.client_right.read_holding_registers(address=408, count=2)
-            self.write_to_file(registers_file, title="Recent channel 2 value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Channel 3
-            response_left = self.client_left.read_holding_registers(address=410, count=2)
-            response_right = self.client_right.read_holding_registers(address=410, count=2)
-            self.write_to_file(registers_file, title="Recent channel 3 value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Channel 4
-            response_left = self.client_left.read_holding_registers(address=412, count=2)
-            response_right = self.client_right.read_holding_registers(address=412, count=2)
-            self.write_to_file(registers_file, title="Recent channel 4 value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # Current Trigger value
-            response_left = self.client_left.read_holding_registers(address=414, count=2)
-            response_right = self.client_right.read_holding_registers(address=414, count=2)
-            self.write_to_file(registers_file, title="Current Trigger value ", left_vals=[response_left.registers[0],response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
             # Host current UCUR16 9.7 4310
             response_left = self.client_left.read_holding_registers(address=4310, count=1)
             response_right = self.client_right.read_holding_registers(address=4310, count=1)
