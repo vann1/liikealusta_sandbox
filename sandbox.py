@@ -106,13 +106,6 @@ class Sandbox():
             response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
             self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
 
-            # HOST CURRENT MAX LIMIT - 9.7 
-            response_left = self.client_left.read_holding_registers(address=6414, count=1)
-            response_right = self.client_right.read_holding_registers(address=614, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.7 :", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
             # Factory LowVoltageTripLevel UVOLT16 - 11.5
             UVOLT16_DECIMAL_MAX = 2**5
             response_left = self.client_left.read_holding_registers(address=9200, count=1)
