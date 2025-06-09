@@ -80,94 +80,70 @@ class Sandbox():
             # Factory BoardTempTripLevel BTMP16 - 11.5
             response_left = self.client_left.read_holding_registers(address=9202, count=1)
             response_right = self.client_right.read_holding_registers(address=9202, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
-            
-            self.write_to_file(file=registers_file, title="Factory BoardTempTripLevel BTMP16", left_vals=[response_left_high], right_vals=[response_right_high])
+            response_left = utils.registers_convertion(response_left.registers, format="11.5", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="11.5", signed=False)  
+            self.write_to_file(file=registers_file, title="Factory BoardTempTripLevel BTMP16 ", left_vals=[response_left], right_vals=[response_right])
 
             # Factory IPEAK UCUR16
             response_left = self.client_left.read_holding_registers(address=9204, count=1)
             response_right = self.client_right.read_holding_registers(address=9204, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            self.write_to_file(registers_file, title="Factory IPEAK UCUR16:", left_vals=[response_left_high], right_vals=[response_right_high])
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            self.write_to_file(registers_file, title="Factory IPEAK UCUR16 ", left_vals=[response_left], right_vals=[response_right])
 
             # Factory Icontinious UCUR16
             response_left = self.client_left.read_holding_registers(address=9205, count=1)
             response_right = self.client_right.read_holding_registers(address=9205, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            self.write_to_file(registers_file, title="Factory Icontinious UCUR16:", left_vals=[response_left_high], right_vals=[response_right_high])
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            self.write_to_file(registers_file, title="Factory Icontinious UCUR16 ", left_vals=[response_left], right_vals=[response_right])
             
             # Factory ActuatorTempTripLevel ATMP16 - 13.3
             response_left = self.client_left.read_holding_registers(address=9209, count=1)
             response_right = self.client_right.read_holding_registers(address=9209, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 3)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 3)
-            self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16:", left_vals=[response_left_high], right_vals=[response_right_high])
+            response_left = utils.registers_convertion(response_left.registers, format="13.3", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="13.3", signed=False)  
+            self.write_to_file(registers_file, title="Factory ActuatorTempTripLevel ATMP16 ", left_vals=[response_left], right_vals=[response_right])
 
             # Factory LowVoltageTripLevel UVOLT16 - 11.5
-            UVOLT16_DECIMAL_MAX = 2**5
             response_left = self.client_left.read_holding_registers(address=9200, count=1)
             response_right = self.client_right.read_holding_registers(address=9200, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
-            decimal_normalized_left = response_left_low / UVOLT16_DECIMAL_MAX
-            decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
-            self.write_to_file(registers_file, title="LowVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_right], right_vals=[response_right_high, decimal_normalized_right])
+            response_left = utils.registers_convertion(response_left.registers, format="11.5", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="11.5", signed=False)  
+            self.write_to_file(registers_file, title="LowVoltageTripLevel ", left_vals=[response_left], right_vals=[response_right])
 
             # Factory HighVoltageTripLevel UVOLT16 - 11.5
             response_left = self.client_left.read_holding_registers(address=9201, count=1)
             response_right = self.client_right.read_holding_registers(address=9201, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 5)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 5)
-            decimal_normalized_left = response_left_low / UVOLT16_DECIMAL_MAX
-            decimal_normalized_right = response_right_low / UVOLT16_DECIMAL_MAX
-            self.write_to_file(registers_file, title="HighVoltageTripLevel:", left_vals=[response_left_high, decimal_normalized_left], right_vals=[response_right_high, decimal_normalized_right])
+            response_left = utils.registers_convertion(response_left.registers, format="11.5", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="11.5", signed=False)  
+            self.write_to_file(registers_file, title="HighVoltageTripLevel ", left_vals=[response_left], right_vals=[response_right])
 
-            # MAX CURRENT SINCE STARTUP
+            # MAX CURRENT SINCE STARTUP UCUR32
             response_left = self.client_left.read_holding_registers(address=576, count=2)
             response_right = self.client_right.read_holding_registers(address=576, count=2)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[1], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[1], 7)
-            self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.7 :", left_vals=[response_left_high, response_left.registers[0]], right_vals=[response_right_high, response_right.registers[0]])
+            response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=False)  
+            self.write_to_file(registers_file, title="HOST CURRENT MAX LIMIT - 9.23 :", left_vals=[response_left], right_vals=[response_right])
 
-            # MAX VOLTAGE SINCE STARTUP
-            left_VBUS = self.client_left.read_holding_registers(address=578, count=2)
-            right_VBUS = self.client_right.read_holding_registers(address=578, count=2)
-
-            left_VBUS = left_VBUS.registers
-            right_VBUS = right_VBUS.registers
-
-            ### Extract the high value part and deccimal part
-            left_VBUS_high, left_VBUS_low = utils.bit_high_low_both(left_VBUS[1], 5)
-            right_VBUS_high, right_VBUS_low = utils.bit_high_low_both(right_VBUS[1], 5)
-
-            left_vbus_decimal_val = utils.combine_to_21bit(left_VBUS[0], left_VBUS_low)
-            right_vbus_decimal_val = utils.combine_to_21bit(right_VBUS[0], right_VBUS_low)
-
-            left_vbus_decimal_val = utils.normalize_decimal_uvolt32(left_vbus_decimal_val)
-            right_vbus_decimal_val = utils.normalize_decimal_uvolt32(right_vbus_decimal_val)
-
-            ### CONVERT VBUS HIGH INTO ACTUAL VALUE IT USES TWO's COMPLEMENT
-            left_VBUS_high = utils.get_twos_complement(10, left_VBUS_high)
-            right_VBUS_high = utils.get_twos_complement(10, right_VBUS_high)
-
-            left_VBUS = left_VBUS_high + left_vbus_decimal_val
-            right_VBUS = right_VBUS_high + right_vbus_decimal_val
-            self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP", left_vals=[left_VBUS], right_vals=[right_VBUS])
+            # MAX VOLTAGE SINCE STARTUP 11.21
+            response_left = self.client_left.read_holding_registers(address=578, count=2)
+            response_right = self.client_right.read_holding_registers(address=578, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="11.21", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="11.21", signed=True)  
+            self.write_to_file(registers_file, title="MAX VOLTAGE SINCE STARTUP ",  left_vals=[response_left], right_vals=[response_right])
 
             # HOME PRIMARY OPTIONS FLAG MAP - infinite negative
             response_left = self.client_left.read_holding_registers(address=6414, count=1)
-            response_right = self.client_right.read_holding_registers(address=614, count=1)
+            response_right = self.client_right.read_holding_registers(address=6414, count=1)
             self.write_to_file(registers_file, title="HOME PRIMARY OPTIONS FLAG MAP -:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
-            # User defined IPEAK - 2560
+            # User defined IPEAK - 2560 UCUR16
             response_left = self.client_left.read_holding_registers(address=5108, count=1)
             response_right = self.client_right.read_holding_registers(address=5108, count=1)
-            response_left_high, response_left_low = bit_high_low(response_left.registers[0], 7)
-            response_right_high, response_right_low = bit_high_low(response_right.registers[0], 7)
-            self.write_to_file(registers_file, title="User defined IPEAK - 2560:", left_vals=[response_left_high], right_vals=[response_right_high])
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            self.write_to_file(registers_file, title="User defined IPEAK - 2560:", left_vals=[response_left], right_vals=[response_right])
 
             # Current operation mode
             response_left = self.client_left.read_holding_registers(address=31, count=1)
@@ -177,17 +153,14 @@ class Sandbox():
             # current revolutions
             response_left = self.client_left.read_holding_registers(address=378, count=2)
             response_right = self.client_right.read_holding_registers(address=378, count=2)
-            self.write_to_file(registers_file, title="current revolutions:", left_vals=[response_left.registers[1], response_left.registers[0]], right_vals=[response_right.registers[1], response_right.registers[0]])
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)  
+            self.write_to_file(registers_file, title="current revolutions:", left_vals=[response_left], right_vals=[response_right])
 
             # host control command mode
             response_left = self.client_left.read_holding_registers(address=4303, count=1)
             response_right = self.client_right.read_holding_registers(address=4303, count=1)
             self.write_to_file(registers_file, title="host control command mode:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # analog i channel
-            response_left = self.client_left.read_holding_registers(address=7101, count=1)
-            response_right = self.client_right.read_holding_registers(address=7101, count=1)
-            self.write_to_file(registers_file, title="analog i channel:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
 
             # alt command mode
             response_left = self.client_left.read_holding_registers(address=5107, count=1)
@@ -202,38 +175,17 @@ class Sandbox():
             # IEG MODE
             response_left = self.client_left.read_holding_registers(address=4316, count=1)
             response_right = self.client_right.read_holding_registers(address=4316, count=1)
-            self.write_to_file(registers_file, title="IEG MODE:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+            response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)
+            self.write_to_file(registers_file, title="IEG MODE:", left_vals=[response_left], right_vals=[response_right])
 
             # IEG MOTION
             response_left = self.client_left.read_holding_registers(address=4317, count=1)
             response_right = self.client_right.read_holding_registers(address=4317, count=1)
-            self.write_to_file(registers_file, title="IEG MOTION:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
-            # ANALOG POS MIN
-            response_left = self.client_left.read_holding_registers(address=7102, count=2)
-            response_right = self.client_right.read_holding_registers(address=7102, count=2)
-            self.write_to_file(registers_file, title="ANALOG POS MIN:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # ANALOG POS MAX
-            response_left = self.client_left.read_holding_registers(address=7104, count=2)
-            response_right = self.client_right.read_holding_registers(address=7104, count=2)
-            self.write_to_file(registers_file, title="ANALOG POS MAX:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # VELOCITY 
-            response_left = self.client_left.read_holding_registers(address=7106, count=2)
-            response_right = self.client_right.read_holding_registers(address=7106, count=2)
-            self.write_to_file(registers_file, title="VELOCITY:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # ACCEL
-            response_left = self.client_left.read_holding_registers(address=7108, count=2)
-            response_right = self.client_right.read_holding_registers(address=7108, count=2)
-            self.write_to_file(registers_file, title="ACCEL:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
-
-            # MODBUSCNTRL
-            response_left = self.client_left.read_holding_registers(address=7188, count=1)
-            response_right = self.client_right.read_holding_registers(address=7188, count=1)
-            self.write_to_file(registers_file, title="MODBUSCNTRL:", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
-
+            response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)
+            self.write_to_file(registers_file, title="IEG MOTION:", left_vals=[response_left], right_vals=[response_right])
+            
             # OEG status
             response_right = self.client_right.read_holding_registers(address=104, count=1)
             response_left = self.client_left.read_holding_registers(address=104, count=1)
@@ -244,7 +196,9 @@ class Sandbox():
             # home position
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
             response_right = self.client_right.read_holding_registers(address=6002, count=2)
-            self.write_to_file(registers_file, title="home position:", left_vals=[response_left.registers[0], response_left.registers[1]], right_vals=[response_right.registers[0], response_right.registers[1]])
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)
+            self.write_to_file(registers_file, title="home position:", left_vals=[response_left], right_vals=[response_right])
              
             # Fault disables
             response_left = self.client_left.read_holding_registers(address=5102, count=1)
