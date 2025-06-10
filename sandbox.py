@@ -236,6 +236,7 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=4310, count=1)
             response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
+            
             self.write_to_file(registers_file, title="Host Current ", left_vals=[response_left], right_vals=[response_right])
             # Ilimitminus 40 9.23 SIGNED
             response_left = self.client_left.read_holding_registers(address=40, count=2)
