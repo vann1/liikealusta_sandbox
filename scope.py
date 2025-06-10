@@ -63,6 +63,7 @@ class Scope():
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             host_velocity = utils.registers_convertion(register=host_velocity.registers, format="8.24", signed=True)
+            host_velocity *= 60
             host_acceleration = utils.registers_convertion(register=host_acceleration.registers, format="12.20", signed=False)
 
 
@@ -89,8 +90,11 @@ class Scope():
         
             time.sleep(0.05)
         plt.figure(figsize=(10,6))
+        plt.figure(1)
         plt.plot(self.plottable_time, self.plottable_points_1, label="Host velocity",color="blue")
+        plt.figure(2)
         plt.plot(self.plottable_time, self.plottable_points_2, label="Host acceleration", color="green")
+        plt.figure(3)
         plt.plot(self.plottable_time, self.plottable_points_3, label="Perror", color="red")
         plt.xlabel("Time")
         plt.ylabel("Values")
