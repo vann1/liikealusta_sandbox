@@ -77,6 +77,27 @@ class Sandbox():
         try:
             registers_file = open("registers.txt", "w")
 
+            ### Host position
+            response_left = self.client_left.read_holding_registers(address=4304, count=2)
+            response_right = self.client_right.read_holding_registers(address=4304, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)  
+            self.write_to_file(file=registers_file, title="Host position commanded position ", left_vals=[response_left], right_vals=[response_right])
+
+            ### pfeedback position
+            response_left = self.client_left.read_holding_registers(address=378, count=2)
+            response_right = self.client_right.read_holding_registers(address=378, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)  
+            self.write_to_file(file=registers_file, title="current pfeedback position", left_vals=[response_left], right_vals=[response_right])
+
+            ### Current position
+            response_left = self.client_left.read_holding_registers(address=4304, count=2)
+            response_right = self.client_right.read_holding_registers(address=4304, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)  
+            self.write_to_file(file=registers_file, title="Host position commanded position ", left_vals=[response_left], right_vals=[response_right])
+
             # Factory BoardTempTripLevel BTMP16 - 11.5
             response_left = self.client_left.read_holding_registers(address=9202, count=1)
             response_right = self.client_right.read_holding_registers(address=9202, count=1)
