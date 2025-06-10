@@ -95,11 +95,12 @@ class Scope():
             time.sleep(0.05)
         plt.figure(figsize=(10,6))
         plt.figure(1)
-        plt.plot(self.plottable_time, self.plottable_points_1, label="Host velocity",color="blue")
+        plt.plot(self.plottable_time, self.plottable_points_4, label="Idisplay",color="blue")
         plt.figure(2)
         plt.plot(self.plottable_time, self.plottable_points_2, label="Host acceleration", color="green")
         plt.figure(3)
         plt.plot(self.plottable_time, self.plottable_points_3, label="Perror", color="red")
+        
         plt.xlabel("Time")
         plt.ylabel("Values")
         plt.legend()
