@@ -13,7 +13,7 @@ from test import bit_high_low
 
 class ControlLoop():
     joy = NiDAQ_controller.NiDAQJoysticks()
-    MAX_ROLL = 16
+    MAX_ROLL = 8.5
     MAX_PITCH = 8.5
     MAX_DIFF = 0.2
     logger = None
@@ -28,7 +28,7 @@ class ControlLoop():
         await self.init()
         while True:
             try:
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.2)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3] * (-1)

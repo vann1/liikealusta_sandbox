@@ -10,7 +10,7 @@ class Scope():
         SERVER_IP_LEFT="192.168.0.211"
         SERVER_PORT=502
         self.client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
-        self.monitor_time = 10
+        self.monitor_time = 30
         self.previous_time = None
         self.triggered = False
         self.plottable_points = None
