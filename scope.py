@@ -10,7 +10,7 @@ class Scope():
         SERVER_IP_LEFT="192.168.0.211"
         SERVER_PORT=502
         self.client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
-        self.monitor_time = 10
+        self.monitor_time = 30
         self.previous_time = None
         self.triggered = False
         self.plottable_points = None
@@ -103,9 +103,9 @@ class Scope():
         # plt.plot(self.plottable_time, self.plottable_points_1, label="Proportional",color="brown")
         # plt.plot(self.plottable_time, self.plottable_points_2, label="Integral", color="orange")
         # plt.plot(self.plottable_time, self.plottable_points_3, label="Derivative", color="green")
-        # plt.plot(self.plottable_time, self.plottable_points_4, label="Perror", color="red")
-        plt.plot(self.plottable_time, self.plottable_points_5, label="Current position", color="green")
-        plt.plot(self.plottable_time, self.plottable_points_6, label="Target position", color="red", linestyle=':')
+        plt.plot(self.plottable_time, self.plottable_points_4, label="Perror", color="red")
+        # plt.plot(self.plottable_time, self.plottable_points_5, label="Current position", color="green")
+        # plt.plot(self.plottable_time, self.plottable_points_6, label="Target position", color="red", linestyle=':')
 
         plt.xlabel("Time")
         plt.ylabel("Values")

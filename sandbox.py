@@ -277,17 +277,21 @@ class Sandbox():
         self.client_left.write_register(address=config.IEG_MODE, value=0)
         self.client_right.write_register(address=config.IEG_MODE, value=0)
               
-    async def init(self):
+    async def init(self, files=True):
         self.client_right.connect()
         self.client_left.connect()
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
         self.wsclient = WebsocketClient(self.logger, on_message=self.on_message)
-        self.BTfile = open("BoardTemp.txt", "w")
-        self.ATfile = open("ActuatorTemp.txt", "w")
-        self.ICfile = open("IContinous.txt", "w")
-        self.VBUSfile = open("VBUS.txt", "w")
+        if files:
+            self.BTfile = open("BoardTemp.txt", "w")
+            self.ATfile = open("ActuatorTemp.txt", "w")
+            self.ICfile = open("IContinous.txt", "w")
+            self.VBUSfile = open("VBUS.txt", "w")
         await self.wsclient.connect()
-            
+    
+    async def asd(self):
+        await self.init(files=False)
+        await self.make_sample_rotations()
 
     async def main(self):
         try:
@@ -312,7 +316,7 @@ class Sandbox():
 
 if __name__ == "__main__":
     sandbox = Sandbox()
+    asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-
-    sandbox.read_register()
+    # sandbox.read_register()
     # readValues.reset_ieg_mode()
