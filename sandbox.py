@@ -337,9 +337,9 @@ class Sandbox():
             await self.wsclient.send(f"action=rotate|pitch={6-i}|roll={2+i}|")
             await asyncio.sleep(3)
 
-    def reset_ieg_mode(self):
-        self.client_left.write_register(address=, value=0)
-        self.client_right.write_register(address=config.IEG_MODE, value=0)    
+    def set_disabling_fault(self):
+        self.client_left.write_register(address=5102, value=59903+1024)
+        self.client_right.write_register(address=5102, value=59903+1024)    
 
     def reset_ieg_mode(self):
         self.client_left.write_register(address=config.IEG_MODE, value=0)
