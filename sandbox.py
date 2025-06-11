@@ -77,6 +77,13 @@ class Sandbox():
         try:
             registers_file = open("registers.txt", "w")
 
+
+            # OEG status
+            response_right = self.client_right.read_holding_registers(address=104, count=1)
+            response_left = self.client_left.read_holding_registers(address=104, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
+            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
             ### Host position
             response_left = self.client_left.read_holding_registers(address=4304, count=2)
             response_right = self.client_right.read_holding_registers(address=4304, count=2)
@@ -206,13 +213,6 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)
             self.write_to_file(registers_file, title="IEG MOTION:", left_vals=[response_left], right_vals=[response_right])
-            
-            # OEG status
-            response_right = self.client_right.read_holding_registers(address=104, count=1)
-            response_left = self.client_left.read_holding_registers(address=104, count=1)
-            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
-            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
-            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
 
             # home position
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
@@ -338,7 +338,7 @@ class Sandbox():
 
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-    # sandbox.read_register()
+    sandbox.read_register()
     # readValues.reset_ieg_mode()
