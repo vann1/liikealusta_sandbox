@@ -42,7 +42,7 @@ class ColoredFormatter(logging.Formatter):
             logging.getLogger(__name__).warning(
                 f"Failed to resolve path for {record.filename}:{record.lineno}: {str(e)}"
             )
-def setup_logging(name, filename):
+def setup_logging(name, filename, log_to_file=True):
     log_dir = "logs"
     parent_log_dir = os.path.join(Path(__file__).parent.parent.parent, "logs")
     if not os.path.exists(parent_log_dir):
@@ -71,7 +71,8 @@ def setup_logging(name, filename):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     if not logger.handlers:
-        logger.addHandler(file_handler)
+        if log_to_file:
+            logger.addHandler(file_handler)
         logger.addHandler(console_handler)
 
     return logger 

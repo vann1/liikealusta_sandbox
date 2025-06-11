@@ -20,7 +20,7 @@ class ControlLoop():
     wsclient = None
     asd = True
     async def init(self):
-        self.logger = setup_logging("control_loop", "control_loop.txt")
+        self.logger = setup_logging("control_loop", "control_loop.log")
         self.wsclient = WebsocketClient(self.logger)
         await self.wsclient.connect()
         a = 10
