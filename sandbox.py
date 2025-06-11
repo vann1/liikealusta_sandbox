@@ -7,7 +7,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
-from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS
 
 config = MotorConfig()
 
@@ -70,6 +70,10 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(IEG_MOTION[value])
+        elif dict=="FAULT":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(FAULTS[value])
 
         return "\n".join(definitions)
 
@@ -82,7 +86,9 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=5, count=1)
             response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)  
-            self.write_to_file(file=registers_file, title="ALL PRESENT FAULTS ", left_vals=[response_left], right_vals=[response_right])
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
+            self.write_to_file(file=registers_file, title="ALL PRESENT FAULTS ", left_vals=[left_definitons], right_vals=[right_definitions])
 
 
             # OEG status
