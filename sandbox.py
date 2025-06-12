@@ -381,10 +381,16 @@ class Sandbox():
             self.ATfile.close()
             self.ICfile.close()
             self.VBUSfile.close()
+            
+    def faultreset(self):
+        """Clears all active faults from both actuators."""
+        self.client_left.write_register(address=4316,value=32768)
+        self.client_left.write_register(address=4316,value=32768)
+
 
 if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-    sandbox.read_register()
+    sandbox.faultreset()
     # readValues.reset_ieg_mode()
