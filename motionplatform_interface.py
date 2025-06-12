@@ -11,9 +11,12 @@ class MotionPlatform_Interface():
         Initializes logger for motionplatform_interface class and WebsocketClient object.
         Connects to websocket server.
         """
-        self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log")
-        self.wsclient = WebsocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
-        await self.wsclient.connect()
+        try:
+            self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log")
+            self.wsclient = WebsocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
+            await self.wsclient.connect()
+        except Exception as e:
+            self.logger.error("Error while initializing motionplatfrom_interface.")
 
     def handle_client_message(self, message):
         """
@@ -36,11 +39,13 @@ class MotionPlatform_Interface():
         Takes parameters pitch and roll and rotates motionplatform accordingly with given values.
         Raises ValueError if rotate frequency is too fast.
         """
-        if self.error:
-            self.logger.error(f"Error rotating motionplatform. Error: {self.error}")
-            raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
-        await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
-
+        try:
+            if self.error:
+                self.logger.error(f"Error rotating motionplatform. Error: {self.error}")
+                raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
+            await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
+        except Exception as e:
+            self.logger.error("Error while calling rotate function.")
 
 
     
