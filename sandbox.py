@@ -7,7 +7,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
-from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS
 
 config = MotorConfig()
 
@@ -70,13 +70,67 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(IEG_MOTION[value])
+        elif dict=="FAULT":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(FAULTS[value])
 
         return "\n".join(definitions)
 
     def read_register(self):
         try:
             registers_file = open("registers.txt", "w")
+            # RECENTFAULT #1
+            response_left = self.client_left.read_holding_registers(address=846, count=1)
+            response_right = self.client_right.read_holding_registers(address=846, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
+            self.write_to_file(file=registers_file, title="Recent fault #1 ", left_vals=[left_definitons], right_vals=[right_definitions])
+            # RECENTFAULT #1 PowerupCount
+            response_left = self.client_left.read_holding_registers(address=847, count=1)
+            response_right = self.client_right.read_holding_registers(address=847, count=1)
+            self.write_to_file(file=registers_file, title="Recent fault #1 UC", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
+            # DISABLING FAULTS
+            response_left = self.client_left.read_holding_registers(address=5102, count=1)
+            response_right = self.client_right.read_holding_registers(address=5102, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
+            self.write_to_file(file=registers_file, title="ALL DISABLING FAULTS ", left_vals=[left_definitons], right_vals=[right_definitions])
 
+            ### ALL PRESENT FAULTS
+            response_left = self.client_left.read_holding_registers(address=5, count=1)
+            response_right = self.client_right.read_holding_registers(address=5, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
+            self.write_to_file(file=registers_file, title="ALL PRESENT FAULTS ", left_vals=[left_definitons], right_vals=[right_definitions])
+
+             ### ALL DISABLING FAULTS
+            response_left = self.client_left.read_holding_registers(address=6, count=1)
+            response_right = self.client_right.read_holding_registers(address=6, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
+            self.write_to_file(file=registers_file, title="ALL DISABLING FAULTS", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            ### ALL SOFT FAULTS
+            response_left = self.client_left.read_holding_registers(address=7, count=1)
+            response_right = self.client_right.read_holding_registers(address=7, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
+            self.write_to_file(file=registers_file, title="ALL SOFT FAULTS", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            ### prEsent current
+            response_left = self.client_left.read_holding_registers(address=566, count=2)
+            response_right = self.client_right.read_holding_registers(address=566, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="9.23", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.23", signed=False)
+            self.write_to_file(file=registers_file, title="preEsent current ", left_vals=[response_left], right_vals=[response_right])
+
+            # OEG status
+            response_right = self.client_right.read_holding_registers(address=104, count=1)
+            response_left = self.client_left.read_holding_registers(address=104, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
+            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
             ### Host position
             response_left = self.client_left.read_holding_registers(address=4304, count=2)
             response_right = self.client_right.read_holding_registers(address=4304, count=2)
@@ -206,13 +260,6 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="16.0", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="16.0", signed=False)
             self.write_to_file(registers_file, title="IEG MOTION:", left_vals=[response_left], right_vals=[response_right])
-            
-            # OEG status
-            response_right = self.client_right.read_holding_registers(address=104, count=1)
-            response_left = self.client_left.read_holding_registers(address=104, count=1)
-            left_definitons = self.convert_bits_to_dict(response_left.registers[0])
-            right_definitions = self.convert_bits_to_dict(response_right.registers[0])
-            self.write_to_file(registers_file, title="OEG status:", left_vals=left_definitons, right_vals=right_definitions, definitions=True)
 
             # home position
             response_left = self.client_left.read_holding_registers(address=6002, count=2)
@@ -221,10 +268,6 @@ class Sandbox():
             response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)
             self.write_to_file(registers_file, title="home position:", left_vals=[response_left], right_vals=[response_right])
              
-            # Fault disables
-            response_left = self.client_left.read_holding_registers(address=5102, count=1)
-            response_right = self.client_right.read_holding_registers(address=5102, count=1)
-            self.write_to_file(registers_file, title="FaultDisables: ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])
              
             # Fault stop
             response_left = self.client_left.read_holding_registers(address=5104, count=1)
@@ -293,7 +336,10 @@ class Sandbox():
         for i in range(1, 4):
             await self.wsclient.send(f"action=rotate|pitch={6-i}|roll={2+i}|")
             await asyncio.sleep(3)
-            
+
+    def set_disabling_fault(self):
+        self.client_left.write_register(address=5102, value=59903+1024)
+        self.client_right.write_register(address=5102, value=59903+1024)    
 
     def reset_ieg_mode(self):
         self.client_left.write_register(address=config.IEG_MODE, value=0)
@@ -338,7 +384,7 @@ class Sandbox():
 
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-    # sandbox.read_register()
+    sandbox.read_register()
     # readValues.reset_ieg_mode()
