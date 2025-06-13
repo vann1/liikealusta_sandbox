@@ -122,6 +122,34 @@ class Sandbox():
             response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)
             self.write_to_file(file=registers_file, title="Plimit plus", left_vals=[response_left], right_vals=[response_right])
 
+            # plimit velocity
+            response_left = self.client_left.read_holding_registers(address=5124, count=2)
+            response_right = self.client_right.read_holding_registers(address=5124, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="8.24", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="8.24", signed=False)
+            self.write_to_file(file=registers_file, title="plimit velocity", left_vals=[response_left], right_vals=[response_right])
+
+            # Plimit foldback
+            response_left = self.client_left.read_holding_registers(address=5126, count=1)
+            response_right = self.client_right.read_holding_registers(address=5126, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit foldback", left_vals=[response_left], right_vals=[response_right])
+
+            # Plimit ipeak
+            response_left = self.client_left.read_holding_registers(address=5127, count=1)
+            response_right = self.client_right.read_holding_registers(address=5127, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)
+            self.write_to_file(file=registers_file, title="# Plimit ipeak", left_vals=[response_left], right_vals=[response_right])
+
+            # Ipeak time
+            response_left = self.client_left.read_holding_registers(address=5127, count=1)
+            response_right = self.client_right.read_holding_registers(address=5127, count=1)
+            response_left = response_left.registers * 0.001        
+            response_right = response_right.registers * 0.001
+            self.write_to_file(file=registers_file, title="Ipeak time", left_vals=[response_left], right_vals=[response_right])
+
             ### ALL PRESENT FAULTS
             response_left = self.client_left.read_holding_registers(address=5, count=1)
             response_right = self.client_right.read_holding_registers(address=5, count=1)
