@@ -7,7 +7,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
-from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
 
 config = MotorConfig()
 
@@ -74,6 +74,10 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(FAULTS[value])
+        elif dict=="OPTIONS":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(OPTIONS[value])
 
         return "\n".join(definitions)
 
@@ -96,6 +100,55 @@ class Sandbox():
             left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
             right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
             self.write_to_file(file=registers_file, title="ALL DISABLING FAULTS ", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            # DRIVE OPTIONS
+            response_left = self.client_left.read_holding_registers(address=5100, count=1)
+            response_right = self.client_right.read_holding_registers(address=5100, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "OPTIONS")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "OPTIONS")
+            self.write_to_file(file=registers_file, title="DRIVE OPTIONS ", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            # Plimit minus
+            response_left = self.client_left.read_holding_registers(address=5118, count=2)
+            response_right = self.client_right.read_holding_registers(address=5118, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit minus", left_vals=[response_left], right_vals=[response_right])
+
+            # Plimit plus
+            response_left = self.client_left.read_holding_registers(address=5120, count=2)
+            response_right = self.client_right.read_holding_registers(address=5120, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit plus", left_vals=[response_left], right_vals=[response_right])
+
+            # plimit velocity
+            response_left = self.client_left.read_holding_registers(address=5124, count=2)
+            response_right = self.client_right.read_holding_registers(address=5124, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="8.24", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="8.24", signed=False)
+            self.write_to_file(file=registers_file, title="plimit velocity", left_vals=[response_left], right_vals=[response_right])
+
+            # Plimit foldback
+            response_left = self.client_left.read_holding_registers(address=5126, count=1)
+            response_right = self.client_right.read_holding_registers(address=5126, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit foldback", left_vals=[response_left], right_vals=[response_right])
+
+            # Plimit ipeak
+            response_left = self.client_left.read_holding_registers(address=5127, count=1)
+            response_right = self.client_right.read_holding_registers(address=5127, count=1)
+            response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)
+            self.write_to_file(file=registers_file, title="# Plimit ipeak", left_vals=[response_left], right_vals=[response_right])
+
+            # Ipeak time
+            response_left = self.client_left.read_holding_registers(address=5128, count=1)
+            response_right = self.client_right.read_holding_registers(address=5128, count=1)
+            response_left = response_left.registers * 0.001        
+            response_right = response_right.registers * 0.001
+            self.write_to_file(file=registers_file, title="Ipeak time", left_vals=[response_left], right_vals=[response_right])
 
             ### ALL PRESENT FAULTS
             response_left = self.client_left.read_holding_registers(address=5, count=1)
@@ -333,9 +386,11 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        for i in range(1, 4):
+        for i in range(1, 1001):
             await self.wsclient.send(f"action=rotate|pitch={6-i}|roll={2+i}|")
-            await asyncio.sleep(3)
+            await asyncio.sleep(1/50)
+        await self.wsclient.send(f"action=closefile|")
+
 
     def set_disabling_fault(self):
         self.client_left.write_register(address=5102, value=59903+1024)
@@ -349,7 +404,7 @@ class Sandbox():
         self.client_right.connect()
         self.client_left.connect()
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-        self.wsclient = WebsocketClient(self.logger, on_message=self.on_message)
+        self.wsclient = WebsocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
         if files:
             self.BTfile = open("BoardTemp.txt", "w")
             self.ATfile = open("ActuatorTemp.txt", "w")
@@ -358,8 +413,15 @@ class Sandbox():
         await self.wsclient.connect()
     
     async def asd(self):
-        await self.init(files=False)
-        await self.make_sample_rotations()
+        try:
+            await self.init(files=False)
+            
+            await self.make_sample_rotations()
+        except:
+            pass
+        finally:
+            await self.wsclient.close()
+
 
     async def main(self):
         try:
@@ -392,5 +454,6 @@ if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-    sandbox.faultreset()
+    # sandbox.faultreset()
     # readValues.reset_ieg_mode()
+    sandbox.read_register()

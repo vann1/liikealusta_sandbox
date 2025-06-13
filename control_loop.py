@@ -28,7 +28,7 @@ class ControlLoop():
         await self.interface_test.init()
         while True:
             try:
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.1)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3] * (-1)
@@ -51,6 +51,7 @@ class ControlLoop():
             except Exception as e:
                 print(e)
                 continue
+            
             
 if __name__ == "__main__":
     controlLoop = ControlLoop()
