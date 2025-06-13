@@ -7,7 +7,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part
 from test import bit_high_low
-from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
 
 config = MotorConfig()
 
@@ -74,6 +74,10 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(FAULTS[value])
+        elif dict=="OPTIONS":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(OPTIONS[value])
 
         return "\n".join(definitions)
 
@@ -96,6 +100,13 @@ class Sandbox():
             left_definitons = self.convert_bits_to_dict(response_left.registers[0], "FAULT")
             right_definitions = self.convert_bits_to_dict(response_right.registers[0], "FAULT")
             self.write_to_file(file=registers_file, title="ALL DISABLING FAULTS ", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            # DRIVE OPTIONS
+            response_left = self.client_left.read_holding_registers(address=5100, count=1)
+            response_right = self.client_right.read_holding_registers(address=5100, count=1)
+            left_definitons = self.convert_bits_to_dict(response_left.registers[0], "OPTIONS")
+            right_definitions = self.convert_bits_to_dict(response_right.registers[0], "OPTIONS")
+            self.write_to_file(file=registers_file, title="DRIVE OPTIONS ", left_vals=[left_definitons], right_vals=[right_definitions])
 
             ### ALL PRESENT FAULTS
             response_left = self.client_left.read_holding_registers(address=5, count=1)

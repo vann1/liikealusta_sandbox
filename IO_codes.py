@@ -49,3 +49,8 @@ FAULTS = {
     16384: "FACTORY PARAMETERS FAULT",
     32768: "RESTART FAULT" 
 }
+
+OPTIONS = {
+    16: "plimitminusenabled",
+    32: "plimitPlusEnabled"
+}
