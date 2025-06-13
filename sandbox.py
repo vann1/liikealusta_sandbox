@@ -79,9 +79,6 @@ class Sandbox():
             for value in acitive_values:
                 definitions.append(OPTIONS[value])
 
-        test = "\n".join(definitions)
-        test2 = "\n\t".join(definitions)
-        a = 10
         return "\n".join(definitions)
 
     def read_register(self):
@@ -110,6 +107,20 @@ class Sandbox():
             left_definitons = self.convert_bits_to_dict(response_left.registers[0], "OPTIONS")
             right_definitions = self.convert_bits_to_dict(response_right.registers[0], "OPTIONS")
             self.write_to_file(file=registers_file, title="DRIVE OPTIONS ", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            # Plimit minus
+            response_left = self.client_left.read_holding_registers(address=5118, count=2)
+            response_right = self.client_right.read_holding_registers(address=5118, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit minus", left_vals=[left_definitons], right_vals=[right_definitions])
+
+            # Plimit plus
+            response_left = self.client_left.read_holding_registers(address=5120, count=2)
+            response_right = self.client_right.read_holding_registers(address=5120, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=False)
+            self.write_to_file(file=registers_file, title="Plimit plus", left_vals=[left_definitons], right_vals=[right_definitions])
 
             ### ALL PRESENT FAULTS
             response_left = self.client_left.read_holding_registers(address=5, count=1)
