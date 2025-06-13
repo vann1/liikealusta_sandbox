@@ -333,9 +333,11 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        for i in range(1, 4):
+        for i in range(1, 1001):
             await self.wsclient.send(f"action=rotate|pitch={6-i}|roll={2+i}|")
-            await asyncio.sleep(3)
+            await asyncio.sleep(1/50)
+        await self.wsclient.send(f"action=closefile|")
+
 
     def set_disabling_fault(self):
         self.client_left.write_register(address=5102, value=59903+1024)
@@ -349,7 +351,7 @@ class Sandbox():
         self.client_right.connect()
         self.client_left.connect()
         self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-        self.wsclient = WebsocketClient(self.logger, on_message=self.on_message)
+        self.wsclient = WebsocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
         if files:
             self.BTfile = open("BoardTemp.txt", "w")
             self.ATfile = open("ActuatorTemp.txt", "w")
@@ -358,8 +360,15 @@ class Sandbox():
         await self.wsclient.connect()
     
     async def asd(self):
-        await self.init(files=False)
-        await self.make_sample_rotations()
+        try:
+            await self.init(files=False)
+            
+            await self.make_sample_rotations()
+        except:
+            pass
+        finally:
+            await self.wsclient.close()
+
 
     async def main(self):
         try:
@@ -392,5 +401,6 @@ if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
-    sandbox.faultreset()
+    # sandbox.faultreset()
     # readValues.reset_ieg_mode()
+    sandbox.read_register()

@@ -28,7 +28,7 @@ class ControlLoop():
         await self.init()
         while True:
             try:
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.1)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3] * (-1)
@@ -48,9 +48,12 @@ class ControlLoop():
 
                     ### make a command
                     await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
+            except KeyboardInterrupt:
+                    await self.wsclient.send(f"action=closefile|")
             except Exception as e:
                 print(e)
                 continue
+            
             
 if __name__ == "__main__":
     controlLoop = ControlLoop()
