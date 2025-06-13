@@ -9,23 +9,23 @@ from websocket_client import WebsocketClient
 import asyncio
 from utils import extract_part
 from test import bit_high_low
+from motionplatform_interface import MotionPlatform_Interface
 
 
 class ControlLoop():
-    joy = NiDAQ_controller.NiDAQJoysticks()
-    MAX_ROLL = 8.5
-    MAX_PITCH = 8.5
-    MAX_DIFF = 0.2
-    logger = None
-    wsclient = None
-    asd = True
-    async def init(self):
-        self.logger = setup_logging("control_loop", "control_loop.log")
-        self.wsclient = WebsocketClient(self.logger)
-        await self.wsclient.connect()
-        a = 10
+    
+    def __init__(self):
+        self.interface_test = MotionPlatform_Interface()
+        self.joy = NiDAQ_controller.NiDAQJoysticks()
+        self.MAX_PITCH = 8.5
+        self.MAX_ROLL = 8.5
+        self.MAX_DIFF = 0.2
+        self.logger = None
+        self.wsclient = None
+        self.asd = True
+        
     async def main(self):
-        await self.init()
+        await self.interface_test.init()
         while True:
             try:
                 await asyncio.sleep(0.1)
@@ -47,9 +47,7 @@ class ControlLoop():
                         pitch = 0.0
 
                     ### make a command
-                    await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
-            except KeyboardInterrupt:
-                    await self.wsclient.send(f"action=closefile|")
+                    await self.interface_test.rotate(pitch=pitch,roll=roll)
             except Exception as e:
                 print(e)
                 continue
