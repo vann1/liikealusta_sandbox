@@ -79,6 +79,9 @@ class Sandbox():
             for value in acitive_values:
                 definitions.append(OPTIONS[value])
 
+        test = "\n".join(definitions)
+        test2 = "\n\t".join(definitions)
+        a = 10
         return "\n".join(definitions)
 
     def read_register(self):
