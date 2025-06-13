@@ -144,8 +144,8 @@ class Sandbox():
             self.write_to_file(file=registers_file, title="# Plimit ipeak", left_vals=[response_left], right_vals=[response_right])
 
             # Ipeak time
-            response_left = self.client_left.read_holding_registers(address=5127, count=1)
-            response_right = self.client_right.read_holding_registers(address=5127, count=1)
+            response_left = self.client_left.read_holding_registers(address=5128, count=1)
+            response_right = self.client_right.read_holding_registers(address=5128, count=1)
             response_left = response_left.registers * 0.001        
             response_right = response_right.registers * 0.001
             self.write_to_file(file=registers_file, title="Ipeak time", left_vals=[response_left], right_vals=[response_right])
