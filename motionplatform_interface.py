@@ -144,7 +144,7 @@ def get_process_info(self,process_name) -> Union[int, bool]:
     """returns the processes PID or False if not successful"""
     
     ps_command= f"""
-        Get-CimInstance Win32_Process -Filter "Name = 'python.exe'" |
+        Get-CimInstance Win32_Process -Filter "Name = 'pythonw.exe'" |
         Where-Object {{ $_.CommandLine -like "*entrypoint={process_name}*" }} |
         Select-Object ProcessId, CommandLine
         """
