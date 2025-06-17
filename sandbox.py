@@ -387,7 +387,7 @@ class Sandbox():
 
     async def make_sample_rotations(self):
         for i in range(1, 1001):
-            await self.wsclient.send(f"action=rotate|pitch={6-i}|roll={2+i}|")
+            await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
             await asyncio.sleep(1/50)
         await self.wsclient.send(f"action=closefile|")
 
@@ -452,8 +452,8 @@ class Sandbox():
 
 if __name__ == "__main__":
     sandbox = Sandbox()
-    # asyncio.run(sandbox.asd())
+    asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    sandbox.read_register()
+    # sandbox.read_register()
