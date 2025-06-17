@@ -1,7 +1,7 @@
 from setup_logging import setup_logging
 from pymodbus.client import ModbusTcpClient
 from time import time
-from websocket_client import WebsocketClient
+from websocket_client import WebSocketClient
 import asyncio
 import utils as utils
 from motors_config import MotorConfig
@@ -401,16 +401,19 @@ class Sandbox():
         self.client_right.write_register(address=config.IEG_MODE, value=0)
               
     async def init(self, files=True):
-        self.client_right.connect()
-        self.client_left.connect()
-        self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-        self.wsclient = WebsocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
-        if files:
-            self.BTfile = open("BoardTemp.txt", "w")
-            self.ATfile = open("ActuatorTemp.txt", "w")
-            self.ICfile = open("IContinous.txt", "w")
-            self.VBUSfile = open("VBUS.txt", "w")
-        await self.wsclient.connect()
+        try:
+            self.client_right.connect()
+            self.client_left.connect()
+            self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
+            self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
+            if files:
+                self.BTfile = open("BoardTemp.txt", "w")
+                self.ATfile = open("ActuatorTemp.txt", "w")
+                self.ICfile = open("IContinous.txt", "w")
+                self.VBUSfile = open("VBUS.txt", "w")
+            await self.wsclient.connect()
+        except Exception as e:
+            self.logger.error("TÄSSÄ",e)
     
     async def asd(self):
         try:
