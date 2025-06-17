@@ -17,9 +17,10 @@ class MotionPlatformInterface():
         Connects to websocket server.
         """
         try:
+
             self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
-            if not get_process_info(self,"gui"):
-                raise Exception("Run motionplatform.bat file first!")
+            # if not get_process_info(self,"gui"):
+            #     raise Exception("Run motionplatform.bat file first!")
             self.wsclient = WebSocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
             await self.wsclient.connect()
         except Exception as e:
