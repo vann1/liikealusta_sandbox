@@ -1,34 +1,37 @@
-from websocket_client import WebsocketClient
-import utils as utils
 import logging
 import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from colorama import init, Fore, Style
-
+from typing import Union
+import subprocess
 """MOTIONPLATFORM INTERFACE"""
-class MotionPlatform_Interface():
-    def __init__(self):
+class MotionPlatformInterface():
+    def __init__(self,logging=False):
+        self.logging = logging
         self.error = False
-        
+        self.warnings = {}
     async def init(self):
         """
         Initializes logger for motionplatform_interface class and WebsocketClient object.
         Connects to websocket server.
         """
         try:
-            self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log")
-            self.wsclient = WebsocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
+            self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
+            if not get_process_info(self,"gui"):
+                raise Exception("Run motionplatform.bat file first!")
+            self.wsclient = WebSocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
             await self.wsclient.connect()
         except Exception as e:
-            self.logger.error("Error while initializing motionplatfrom_interface.")
+            self.logger.error(str(e))
+            os._exit(1)
 
     def handle_client_message(self, message):
         """
         Handles messages recevied from server.
         """
-        event = utils.extract_part("event=", message=message)
-        clientmessage = utils.extract_part("message=", message=message)
+        event = extract_part("event=", message=message)
+        clientmessage = extract_part("message=", message=message)
         if not event:
             self.logger.error("No event specified in message.")
             return 
@@ -37,6 +40,11 @@ class MotionPlatform_Interface():
             return
         elif event == "error":
             self.error = clientmessage
+        elif event == "warning":
+            if not clientmessage in self.warnings:
+                self.warnings[clientmessage] = clientmessage
+                self.logger.warning(clientmessage)
+            
             
 
     async def rotate(self,pitch,roll):
@@ -93,7 +101,7 @@ class ColoredFormatter(logging.Formatter):
             logging.getLogger(__name__).warning(
                 f"Failed to resolve path for {record.filename}:{record.lineno}: {str(e)}"
             )
-def setup_logging(name, filename, log_to_file=True):
+def setup_logging(name, filename,extensive_logging, log_to_file=False):
     log_dir = "logs"
     parent_log_dir = os.path.join(Path(__file__).parent.parent.parent, "logs")
     if not os.path.exists(parent_log_dir):
@@ -120,10 +128,256 @@ def setup_logging(name, filename, log_to_file=True):
     console_handler.setFormatter(console_formatter)
     # config root logger
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+
+    if extensive_logging:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.WARNING)
     if not logger.handlers:
         if log_to_file:
             logger.addHandler(file_handler)
         logger.addHandler(console_handler)
 
     return logger         
+
+def get_process_info(self,process_name) -> Union[int, bool]:
+    """returns the processes PID or False if not successful"""
+    
+    ps_command= f"""
+        Get-CimInstance Win32_Process -Filter "Name = 'pythonw.exe'" |
+        Where-Object {{ $_.CommandLine -like "*entrypoint={process_name}*" }} |
+        Select-Object ProcessId, CommandLine
+        """
+
+    try:
+        result = subprocess.run(
+            ["powershell.exe", "-Command", ps_command],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        if result.stdout:
+            pid = extract_pid_from_commandline(self,result.stdout)
+            if not pid:
+                return False
+            self.logger.info(f"Existing pid found with a process name: {process_name} pid: {pid}")
+            return pid
+        else:
+            return False
+        
+    except subprocess.CalledProcessesError as e:
+        self.logger.error(f"Error running PowerShell command: {e.stderr}")
+        return False
+
+def extract_pid_from_commandline(self, result) -> Union[int, bool]:
+    try:
+        trimmed = result.replace(" ", "")
+        results = trimmed.split("\n")
+        command_lines = []
+        for r in results:
+            if len(r.split(".exe")) == 1:
+                continue
+            else:
+                command_lines.append(r)
+        
+        temp = command_lines[0]
+        self.logger.info(f"Found {len(command_lines)} command lines")
+        pid_list = []
+        for ch in temp:
+            try:
+                int(ch)
+                pid_list.append(ch)
+            except ValueError as e:
+                break
+        pid_list = "".join(pid_list)
+        return int(pid_list)
+    except ValueError:
+        self.logger.error("Unable to extract pid from a found commandline")
+        return False
+    except Exception as e:
+        self.logger.error("Unexpected error while extracting pid from a commandline string")
+
+from dataclasses import dataclass
+
+@dataclass
+class Config:
+    WEBSOCKET_SRV_PORT = 7000
+    
+    ### SERVER CONFIG
+    SERVER_IP_LEFT: str = '192.168.0.211'  
+    SERVER_IP_RIGHT: str = '192.168.0.212'
+    SERVER_PORT: int = 502  
+    WEB_SERVER_PORT: int = 5001
+
+    ### USEFUL MAX VALUES
+    UINT32_MAX = 65535
+
+    ### 
+    MODULE_NAME = None
+    POLLING_TIME_INTERVAL: float = 5.0
+    POS_UPDATE_HZ: int = 1
+    START_TID: int = 10001 # first TID will be startTID + 1
+    LAST_TID: int = 20000
+    CONNECTION_TRY_COUNT = 5
+
+import asyncio
+import websockets
+from websockets.exceptions import ConnectionClosed
+
+config = Config()
+
+class WebSocketClient():
+    def __init__(self, logger, identity="unknown", uri=f"ws://localhost:{config.WEBSOCKET_SRV_PORT}", on_message=None, reconnect_interval=2.5, max_reconnect_attempt=10):
+        self.uri = uri
+        self.socket = None
+        self.is_running = False
+        self.on_message = on_message
+        self._listen_task = None
+        self.reconnect_interval = reconnect_interval
+        self.max_reconnect_attempt = max_reconnect_attempt
+        self.reconnect_count = 0
+        self.logger = logger
+        self.identity = identity
+        self._connection_lock = asyncio.Lock()
+        
+    async def connect(self):
+        async with self._connection_lock:
+            try:
+                if self.is_running:
+                    self.logger.info("Client is already connected, can't connect again")
+                    return 
+                
+                await self._cleanup_connection()
+                
+                self.socket = await websockets.connect(
+                    self.uri,
+                    ping_interval=None,  # Disable automatic ping
+                    ping_timeout=None    # Disable ping timeout
+                )
+                await self.socket.send(f"action=identify|identity={self.identity}|")
+                self.is_running = True
+                self.reconnect_count = 0
+                self.logger.info(f"client connected to server: {self.uri}")
+                
+                if self.on_message:
+                    self.on_message(f"event=connected|message=Client connected to server.|")
+                # Create new listen task
+                self._listen_task = asyncio.create_task(self._listen())
+            except asyncio.TimeoutError:
+                await self._handle_connection_failure(f"Connection timed out")
+            except Exception as e:
+                await self._handle_connection_failure(f"Error connecting to the server: {e}")
+            finally:
+                pass
+    
+    async def _handle_connection_failure(self, error_msg):
+        """Handle a connection failure by scheduling a reconnect or closing the client."""
+        async with self._connection_lock:
+            self.logger.error(f"Connection failed: {error_msg}")
+            self.is_running = False
+                
+            self.reconnect_count += 1
+            if self.reconnect_count < self.max_reconnect_attempt:
+                asyncio.create_task(self._schedule_reconnect())
+            else:
+                self.logger.info("Maximum reconnect attempts reached, closing client")
+                await self._cleanup_connection()
+    async def _listen(self):
+        try:
+            self.logger.info("Creating listening coroutine for client")
+            while self.is_running and self.socket:
+                try:
+                    response = await self.socket.recv()
+                    if self.on_message:
+                        self.on_message(response)
+                except ConnectionClosed:
+                    self.logger.info("Client disconnected from the server")
+                    break
+                except Exception as e:
+                    self.logger.error(f"Error receiving message: {e}")
+                    break
+                    
+        except Exception as e:
+            self.logger.error(f"Exception in the listen coroutine: {e}")
+        finally:
+            # Only trigger reconnection if we were supposed to be running
+            if self.is_running:
+                await self._handle_connection_failure("Listen coroutine ended unexpectedly")
+
+    async def _schedule_reconnect(self):
+        """Schedule a reconnection attempt after a delay."""
+        try:
+            await asyncio.sleep(self.reconnect_interval)
+            await self.connect()
+        except Exception as e:
+            self.logger.error(f"Error during reconnection: {e}")
+
+    async def send(self, message):
+        try:
+            if not self.is_running or not self.socket:
+                self.logger.info("Client not connected, can't send a message")
+                return False
+
+            await self.socket.send(message)
+            return True
+        except ConnectionClosed:
+            self.logger.warning("Connection closed while sending message")
+            await self._handle_connection_failure("Connection closed during send")
+            return False
+        except Exception as e:
+            self.logger.error(f"Error while client was sending a message: {e}")
+            await self._handle_connection_failure(f"Send error: {e}")
+            return False
+
+    async def _cleanup_connection(self):
+        """Clean up existing connection and tasks."""
+        # Cancel and wait for listen task
+        if self._listen_task and not self._listen_task.done():
+            self._listen_task.cancel()
+            try:
+                await self._listen_task
+            except asyncio.CancelledError:
+                pass
+            self._listen_task = None
+
+        # Close socket
+        if self.socket:
+            try:
+                await self.socket.close()
+            except Exception as e:
+                self.logger.error(f"Error closing socket: {e}")
+            finally:
+                self.socket = None
+
+    async def close(self):
+        """Close the websocket connection and clean up resources."""
+        async with self._connection_lock:
+            try:
+                self.is_running = False
+                await self._cleanup_connection()
+                self.logger.info("Client socket closed")
+            except Exception as e:
+                self.logger.error(f"Exception while closing client: {e}")
+
+    async def _wait_for_connection(self, timeout=10):
+        """Wait for the client to be connected, useful for testing."""
+        start_time = asyncio.get_event_loop().time()
+        while not self.is_running and (asyncio.get_event_loop().time() - start_time) < timeout:
+            await asyncio.sleep(0.1)
+        return self.is_running
+
+def extract_part(part, message):
+    start_idx = message.find(part)
+    if start_idx == -1:
+        return False
+    
+    start_idx += len(part)
+    pipe_idx = message.find("|", start_idx)
+    if pipe_idx == -1:
+        return False
+    
+    return  message[start_idx:pipe_idx]
+
+
+
