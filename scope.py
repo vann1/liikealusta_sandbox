@@ -96,8 +96,10 @@ class Scope():
         plt.figure(figsize=(10,6))
         plt.figure(1)
         plt.plot(self.plottable_time, self.plottable_points_4, label="Idisplay",color="blue")
+        plt.legend()
         plt.figure(2)
         plt.plot(self.plottable_time, self.plottable_points_2, label="Pfeedback", color="green")
+        plt.legend()
         plt.figure(3)
         plt.plot(self.plottable_time, self.plottable_points_3, label="Perror", color="red")
         

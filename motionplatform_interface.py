@@ -5,14 +5,14 @@ from pathlib import Path
 from colorama import init, Fore, Style
 from typing import Union
 import subprocess
-from time import time
+from time import time, sleep
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
 """MOTIONPLATFORM INTERFACE"""
 
 class MotionPlatformInterface():
-    def __init__(self, logging=False):
+    def __init__(self, logging=True):
         self.logging = logging
         self.error = False
         self.warnings = {}
@@ -25,11 +25,10 @@ class MotionPlatformInterface():
         Connects to websocket server.
         """
         try:
-            self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
             if not get_process_info(self,"gui"):
                 raise Exception("Run motionplatform.bat file first!")
             self.logger.info("_init ran")
-            self.wsclient = WebSocketClient(logger=self.logger, identity="interface", on_message=self.handle_client_message)
+            self.wsclient = WebSocketClient(logger=self.logger, identity="interface", on_message=self._handle_client_message)
             self.logger.info("Ws client obj made")
             await self.wsclient.connect()
         except Exception as e:
@@ -76,12 +75,13 @@ class MotionPlatformInterface():
     def init(self):
         """Initialize with background event loop"""
         if self._loop_thread is None:
+            self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
             self._loop_thread = threading.Thread(target=self._start_background_loop, daemon=True)
             self._loop_thread.start()
             
             # Wait for loop to be ready
             while self._loop is None:
-                time.sleep(0.01)
+                sleep(0.01)
                 
             # Schedule the init on the background loop
             future = asyncio.run_coroutine_threadsafe(self._init(), self._loop)
