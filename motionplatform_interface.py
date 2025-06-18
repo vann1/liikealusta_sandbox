@@ -28,7 +28,9 @@ class MotionPlatformInterface():
             self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
             if not get_process_info(self,"gui"):
                 raise Exception("Run motionplatform.bat file first!")
-            self.wsclient = WebSocketClient(self.logger, identity="interface", on_message=self.handle_client_message)
+            self.logger.info("_init ran")
+            self.wsclient = WebSocketClient(logger=self.logger, identity="interface", on_message=self.handle_client_message)
+            self.logger.info("Ws client obj made")
             await self.wsclient.connect()
         except Exception as e:
             self.logger.error(str(e))
@@ -51,6 +53,7 @@ class MotionPlatformInterface():
         """Start event loop in background thread"""
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
+        self.logger.info("Background event loop has been registered and is running")
         self._loop.run_forever()
         
     def init(self):
@@ -66,6 +69,7 @@ class MotionPlatformInterface():
             # Schedule the init on the background loop
             future = asyncio.run_coroutine_threadsafe(self._init(), self._loop)
             future.result()  # Wait for completion
+            self.logger.info("future ressult for _init() done")
         
     def set_angles(self, pitch, roll):
         """Synchronous method that uses background event loop"""
