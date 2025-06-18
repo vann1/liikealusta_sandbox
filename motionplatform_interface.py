@@ -55,7 +55,24 @@ class MotionPlatformInterface():
         asyncio.set_event_loop(self._loop)
         self.logger.info("Background event loop has been registered and is running")
         self._loop.run_forever()
-        
+    def _handle_client_message(self, message):
+        """
+        Handles messages recevied from server.
+        """
+        event = extract_part("event=", message=message)
+        clientmessage = extract_part("message=", message=message)
+        if not event:
+            self.logger.error("No event specified in message.")
+            return 
+        if not clientmessage: 
+            self.logger.error("No client message specified in message.")
+            return
+        elif event == "error":
+            self.error = clientmessage
+        elif event == "warning":
+            if not clientmessage in self.warnings:
+                self.warnings[clientmessage] = clientmessage
+                self.logger.warning(clientmessage)
     def init(self):
         """Initialize with background event loop"""
         if self._loop_thread is None:
