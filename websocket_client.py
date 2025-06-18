@@ -6,7 +6,7 @@ from config import Config
 config = Config()
 
 class WebSocketClient():
-    def __init__(self, logger, identity="unknown", uri=f"ws://localhost:{config.WEBSOCKET_SRV_PORT}", on_message=None, reconnect_interval=2.5, max_reconnect_attempt=10):
+    def __init__(self, logger, identity="unknown", uri=f"ws://localhost:{config.WEBSOCKET_SRV_PORT}", on_message=None,on_message_async=True ,reconnect_interval=2.5, max_reconnect_attempt=10):
         self.uri = uri
         self.socket = None
         self.is_running = False
@@ -17,6 +17,7 @@ class WebSocketClient():
         self.reconnect_count = 0
         self.logger = logger
         self.identity = identity
+        self.on_message_async = on_message_async
         self._connection_lock = asyncio.Lock()
         
     async def connect(self):
@@ -37,9 +38,12 @@ class WebSocketClient():
                 self.is_running = True
                 self.reconnect_count = 0
                 self.logger.info(f"client connected to server: {self.uri}")
-                
+
                 if self.on_message:
-                    self.on_message(f"event=connected|message=Client connected to server.|")
+                    if self.on_message_async:
+                        await self.on_message(f"event=connected|message=Client connected to server.|")
+                    else:
+                        self.on_message(f"event=connected|message=Client connected to server.|")
                 # Create new listen task
                 self._listen_task = asyncio.create_task(self._listen())
             except asyncio.TimeoutError:
@@ -68,7 +72,10 @@ class WebSocketClient():
                 try:
                     response = await self.socket.recv()
                     if self.on_message:
-                        self.on_message(response)
+                        if self.on_message_async:
+                            await self.on_message(response)
+                        else: 
+                            self.on_message(response)
                 except ConnectionClosed:
                     self.logger.info("Client disconnected from the server")
                     break
