@@ -11,7 +11,7 @@ class MotionPlatformInterface():
         self.logging = logging
         self.error = False
         self.warnings = {}
-    async def init(self):
+    async def _init(self):
         """
         Initializes logger for motionplatform_interface class and WebsocketClient object.
         Connects to websocket server.
@@ -46,9 +46,13 @@ class MotionPlatformInterface():
                 self.warnings[clientmessage] = clientmessage
                 self.logger.warning(clientmessage)
             
-            
-
-    async def rotate(self,pitch,roll):
+    def setAngles(self, pitch, roll):
+        asyncio.run(self._rotate(pitch,roll))
+        
+    def init(self):
+        asyncio.run(self._init())
+        
+    async def _rotate(self,pitch,roll):
         """
         Takes parameters pitch and roll and rotates motionplatform accordingly with given values.
         Raises ValueError if rotate frequency is too fast.
