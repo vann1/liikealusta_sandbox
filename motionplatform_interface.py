@@ -5,19 +5,26 @@ from pathlib import Path
 from colorama import init, Fore, Style
 from typing import Union
 import subprocess
+from time import time
+from concurrent.futures import ThreadPoolExecutor
+import threading
+
 """MOTIONPLATFORM INTERFACE"""
+
 class MotionPlatformInterface():
-    def __init__(self,logging=False):
+    def __init__(self, logging=False):
         self.logging = logging
         self.error = False
         self.warnings = {}
+        self._loop = None
+        self._loop_thread = None
+
     async def _init(self):
         """
         Initializes logger for motionplatform_interface class and WebsocketClient object.
         Connects to websocket server.
         """
         try:
-
             self.logger = setup_logging("motionplatform_interface", "motionplatform_interface.log", extensive_logging=self.logging)
             if not get_process_info(self,"gui"):
                 raise Exception("Run motionplatform.bat file first!")
@@ -27,46 +34,67 @@ class MotionPlatformInterface():
             self.logger.error(str(e))
             os._exit(1)
 
-    def handle_client_message(self, message):
-        """
-        Handles messages recevied from server.
-        """
-        event = extract_part("event=", message=message)
-        clientmessage = extract_part("message=", message=message)
-        if not event:
-            self.logger.error("No event specified in message.")
-            return 
-        if not clientmessage: 
-            self.logger.error("No client message specified in message.")
-            return
-        elif event == "error":
-            self.error = clientmessage
-        elif event == "warning":
-            if not clientmessage in self.warnings:
-                self.warnings[clientmessage] = clientmessage
-                self.logger.warning(clientmessage)
-            
-    def setAngles(self, pitch, roll):
-        asyncio.run(self._rotate(pitch,roll))
+    async def _rotate(self,pitch,roll):
+            """
+            Takes parameters pitch and roll and rotates motionplatform accordingly with given values.
+            Raises ValueError if rotate frequency is too fast.
+            """
+            try:
+                if self.error:
+                    self.logger.error(f"Error rotating motionplatform. Error: {self.error}")
+                    raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
+                await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
+            except Exception as e:
+                self.logger.error("Error while calling rotate function.")
+
+    def _start_background_loop(self):
+        """Start event loop in background thread"""
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_forever()
         
     def init(self):
-        asyncio.run(self._init())
+        """Initialize with background event loop"""
+        if self._loop_thread is None:
+            self._loop_thread = threading.Thread(target=self._start_background_loop, daemon=True)
+            self._loop_thread.start()
+            
+            # Wait for loop to be ready
+            while self._loop is None:
+                time.sleep(0.01)
+                
+            # Schedule the init on the background loop
+            future = asyncio.run_coroutine_threadsafe(self._init(), self._loop)
+            future.result()  # Wait for completion
         
-    async def _rotate(self,pitch,roll):
-        """
-        Takes parameters pitch and roll and rotates motionplatform accordingly with given values.
-        Raises ValueError if rotate frequency is too fast.
-        """
-        try:
-            if self.error:
-                self.logger.error(f"Error rotating motionplatform. Error: {self.error}")
-                raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
-            await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
-        except Exception as e:
-            self.logger.error("Error while calling rotate function.")
+    def set_angles(self, pitch, roll):
+        """Synchronous method that uses background event loop"""
+        if self._loop is None:
+            raise RuntimeError("Must call init() first")
+            
+        future = asyncio.run_coroutine_threadsafe(self._rotate(pitch, roll), self._loop)
+        future.result()  # Wait for completion
+        
+    def close(self):
+        """Clean shutdown"""
+        if self._loop:
+            future = asyncio.run_coroutine_threadsafe(self.wsclient.close(), self._loop)
+            try:
+                future.result(timeout=5)
+                self.logger.info("ws client closed successfully")
+            except Exception:
+                self.logger.error("Ws client close coroutine timedout")
 
+            self._loop.call_soon_threadsafe(self._loop.stop)
 
-    
+            if self._loop_thread and self._loop_thread.is_alive():
+                self._loop_thread.join(timeout=2)
+
+                if self._loop_thread.is_alive():
+                    self.logger.warning("Background thread did not close it self cleanly")
+                else:
+                    self.logger.info("Background thread closed successfully")
+                
     
 """THIS IS FOR LOGGING"""        
 # Initialize colorama for cross-platform colored output
