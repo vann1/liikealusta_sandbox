@@ -8,6 +8,7 @@ from motors_config import MotorConfig
 from utils import extract_part, is_nth_bit_on
 from test import bit_high_low
 from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
+from tcp_socket_client import TCPSocketClient
 
 config = MotorConfig()
 
@@ -407,13 +408,9 @@ class Sandbox():
         #     await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
         #     await asyncio.sleep(1/50)
         # await self.wsclient.send(f"action=closefile|")
-        await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
+        await self.wsclient.send(f"action=rotate|pitch={2.5}|roll={3}|")
         if self.in_position():
-            ### Read sensors actual angle
-            ###
-            pass
-
-
+            self.iMU_client.send_message("action=r_xl|")
 
     def set_disabling_fault(self):
         self.client_left.write_register(address=5102, value=59903+1024)
@@ -422,9 +419,17 @@ class Sandbox():
     def reset_ieg_mode(self):
         self.client_left.write_register(address=config.IEG_MODE, value=0)
         self.client_right.write_register(address=config.IEG_MODE, value=0)
-              
+    def recive_telemetry_data(self,message):
+        message=extract_part("message=", message)
+        pitch,roll = message.split(",")
+        pitch = float(pitch)
+        roll = float(roll)
+        roll -= 0.6
+        print(pitch,",",roll)          
     async def init(self, files=True):
         try:
+            self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
+            self.iMU_client.connect()
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
