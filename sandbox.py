@@ -404,18 +404,10 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        # for i in range(1, 1001):
-        #     await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
-        #     await asyncio.sleep(1/50)
-        # await self.wsclient.send(f"action=closefile|")
         n = 10
-        step_change = 17/n+1
+        step_change = 17/(n-1)
         max_pitch = 8.5
-        for i in range(1, n+1):
-
-            # if i==0:
-            #     await self.wsclient.send(f"action=rotate|pitch={max_pitch}|roll={0}|")
-            # else:
+        for i in range(n):
             await self.wsclient.send(f"action=rotate|pitch={max_pitch-(i*step_change)}|roll={0}|")
             wut = max_pitch-(i*step_change)
             print(f"wut {wut} i {i}")
