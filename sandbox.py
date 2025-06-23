@@ -20,6 +20,7 @@ class Sandbox():
     client_right = ModbusTcpClient(host=SERVER_IP_RIGHT, port=SERVER_PORT)
     logger = None
     wsclient = None
+    telemetry_data_ready=False
     
     def in_position(self, n=20) -> bool:
         """Polls for n amount of time to check 
@@ -32,7 +33,7 @@ class Sandbox():
             rr = self.client_right.read_holding_registers(address=105, count=1).registers[0]
             if is_nth_bit_on(12, lr) and is_nth_bit_on(12, rr):
                 return True
-            elapsed_time += time() - start_time
+            elapsed_time = time() - start_time
         
         self.logger.error("Motors failed to be in position in the given time limit")
         return False
@@ -408,17 +409,23 @@ class Sandbox():
         #     await asyncio.sleep(1/50)
         # await self.wsclient.send(f"action=closefile|")
         n = 10
-        step_change = 16/n
-        max_pitch = 8
-        for i in range(n):
+        step_change = 17/n+1
+        max_pitch = 8.5
+        for i in range(1, n+1):
+
+            # if i==0:
+            #     await self.wsclient.send(f"action=rotate|pitch={max_pitch}|roll={0}|")
+            # else:
             await self.wsclient.send(f"action=rotate|pitch={max_pitch-(i*step_change)}|roll={0}|")
-            sleep(0.5)
+            wut = max_pitch-(i*step_change)
+            print(f"wut {wut} i {i}")
+            await asyncio.sleep(0.5)
             if self.in_position():
                 self.iMU_client.send_message("action=r_xl|")
                 if self.is_data_ready():
                     r_left_revs, r_right_revs = self.get_current_position()
                     self.telemetry_data_ready = False
-                    self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}")
+                    self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
         self.dataset.close()
         
     def get_current_position(self):
@@ -442,7 +449,7 @@ class Sandbox():
                 return True
             else:
                 sleep(0.1)
-            elapsed_time += time() - start_time
+            elapsed_time = time() - start_time
         self.logger.error("Motors failed to be in position in the given time limit")
         return False
     def set_disabling_fault(self):
@@ -461,7 +468,8 @@ class Sandbox():
         print(pitch,",",roll) 
         self.pitch = pitch
         self.roll = roll
-        self.telemetry_data_ready = True         
+        self.telemetry_data_ready = True     
+
     async def init(self, files=True):
         try:
             self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
@@ -469,7 +477,7 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.dataset = open("Angle_dataset.txt", "a")
+            self.dataset = open("Angle_dataset.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             if files:
                 self.BTfile = open("BoardTemp.txt", "w")
@@ -485,8 +493,8 @@ class Sandbox():
             await self.init(files=False)
             
             await self.make_sample_rotations()
-        except:
-            pass
+        except Exception as e:
+            print(e)
         finally:
             await self.wsclient.close()
 

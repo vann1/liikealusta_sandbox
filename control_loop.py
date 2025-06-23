@@ -24,7 +24,7 @@ class ControlLoop():
         self.asd = True
         
     async def main(self):
-        await self.mpi.init()
+        self.mpi.init()
         while True:
             try:
                 await asyncio.sleep(0.01)
@@ -46,7 +46,7 @@ class ControlLoop():
                         pitch = 0.0
 
                     ### make a command
-                    await self.mpi.rotate(pitch=pitch,roll=roll)
+                    self.mpi.set_angles(pitch=pitch,roll=roll)
             except ValueError:
                 break
             
