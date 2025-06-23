@@ -5,7 +5,7 @@ from websocket_client import WebSocketClient
 import asyncio
 import utils as utils
 from motors_config import MotorConfig
-from utils import extract_part
+from utils import extract_part, is_nth_bit_on
 from test import bit_high_low
 from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
 
@@ -21,6 +21,23 @@ class Sandbox():
     logger = None
     wsclient = None
     
+    def in_position(self, n=20) -> bool:
+        """Polls for n amount of time to check 
+        if the motors are in position or not"""
+        max_polling_duration=n
+        elapsed_time = 0
+        start_time = time()
+        while max_polling_duration >= elapsed_time:
+            lr = self.client_left.read_holding_registers(address=105, count=1).registers[0]
+            rr = self.client_right.read_holding_registers(address=105, count=1).registers[0]
+            if is_nth_bit_on(12, lr) and is_nth_bit_on(12, rr):
+                return True
+            elapsed_time += time() - start_time
+        
+        self.logger.error("Motors failed to be in position in the given time limit")
+        return False
+
+
     async def on_message(self,msg):
         event = extract_part("event=",msg)
         message = extract_part("message=",msg)
