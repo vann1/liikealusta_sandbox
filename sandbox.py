@@ -403,10 +403,16 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        for i in range(1, 1001):
-            await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
-            await asyncio.sleep(1/50)
-        await self.wsclient.send(f"action=closefile|")
+        # for i in range(1, 1001):
+        #     await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
+        #     await asyncio.sleep(1/50)
+        # await self.wsclient.send(f"action=closefile|")
+        await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
+        if self.in_position():
+            ### Read sensors actual angle
+            ###
+            pass
+
 
 
     def set_disabling_fault(self):
