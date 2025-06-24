@@ -18,11 +18,11 @@ class Scope():
         self.delta_time = 0
    
         # cmd line arguments
-        self.trigger_register = 344
-        self.trigger_register_format = "8.24"
+        self.trigger_register = 566
+        self.trigger_register_format = "9.23"
         self.trigger_register_signed = False
         self.count = 2
-        self.trigger_level = 0.5
+        self.trigger_level = 2.0
         self.window_size = 100
         
         # deque array for datapoints
@@ -60,7 +60,7 @@ class Scope():
             else:
                 self.previous_time = time.time()
             idisplay,perror,host_velocity,pfeedback,trigger_value = self.poll_data()
-            trigger_value = utils.registers_convertion(trigger_value.registers, format="8.24", signed=True)
+            trigger_value = utils.registers_convertion(trigger_value.registers, format=self.trigger_register_format, signed=True)
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             host_velocity = utils.registers_convertion(register=host_velocity.registers, format="8.24", signed=True)
@@ -81,7 +81,7 @@ class Scope():
                 self.plottable_points_4.append(idisplay)
                 self.plottable_time.append(time.time())
             
-            if self.triggered or trigger_value > 0.5:
+            if self.triggered or trigger_value > self.trigger_level:
                    if self.triggered == False:
                         self.plottable_points_1 = list(self.datapoint_1.copy())
                         self.plottable_points_2 = list(self.datapoint_2.copy())
