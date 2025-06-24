@@ -6,7 +6,8 @@ def recive_telemetry_data(message):
     pitch,roll = message.split(",")
     pitch = float(pitch)
     roll = float(roll)
-    roll -= 0.6
+    pitch -= 0.3
+    roll -= 0.5
     print(pitch,",",roll)
 
 
