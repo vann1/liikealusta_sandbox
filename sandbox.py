@@ -418,7 +418,7 @@ class Sandbox():
         step_change = 16/n
         max_pitch = 8
         max_roll = 16
-
+        random.seed(30)
         for i in range(100):
             random_roll = round(random.uniform(-16, 16), 2)
             random_pitch = round(random.uniform(-8.5, 8.5), 2)
@@ -487,7 +487,7 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.dataset = open("pitchroll2.csv", "a")
+            self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             if files:
                 self.BTfile = open("BoardTemp.txt", "w")
