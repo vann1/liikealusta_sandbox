@@ -404,11 +404,11 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        n = 10
-        step_change = 17/(n-1)
-        max_pitch = 8.5
+        n = 1000
+        step_change = 32/(n-1)
+        max_pitch = 16
         for i in range(n):
-            await self.wsclient.send(f"action=rotate|pitch={max_pitch-(i*step_change)}|roll={0}|")
+            await self.wsclient.send(f"action=rotate|pitch={0}|roll={max_pitch-(i*step_change)}|")
             wut = max_pitch-(i*step_change)
             print(f"wut {wut} i {i}")
             await asyncio.sleep(0.5)
@@ -418,6 +418,7 @@ class Sandbox():
                     r_left_revs, r_right_revs = self.get_current_position()
                     self.telemetry_data_ready = False
                     self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
+        self.logger.info("pitch data raksutettu")
         self.dataset.close()
         
     def get_current_position(self):
@@ -469,7 +470,7 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.dataset = open("Angle_dataset.csv", "a")
+            self.dataset = open("roll.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             if files:
                 self.BTfile = open("BoardTemp.txt", "w")

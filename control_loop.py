@@ -17,7 +17,7 @@ class ControlLoop():
         self.mpi = MotionPlatformInterface()
         self.joy = NiDAQ_controller.NiDAQJoysticks()
         self.MAX_PITCH = 8.5
-        self.MAX_ROLL = 8.5
+        self.MAX_ROLL = 16
         self.MAX_DIFF = 0.2
         self.logger = None
         self.wsclient = None
