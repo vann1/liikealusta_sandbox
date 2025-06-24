@@ -1,3 +1,4 @@
+import random
 from setup_logging import setup_logging
 from pymodbus.client import ModbusTcpClient
 from time import time,sleep
@@ -404,14 +405,19 @@ class Sandbox():
             registers_file.close()
 
     async def make_sample_rotations(self):
-        n = 1000
-        step_change = 32/(n-1)
-        max_pitch = 16
-        for i in range(n):
-            await self.wsclient.send(f"action=rotate|pitch={0}|roll={max_pitch-(i*step_change)}|")
-            wut = max_pitch-(i*step_change)
-            print(f"wut {wut} i {i}")
-            await asyncio.sleep(0.5)
+        # for i in range(1, 1001):
+        #     await self.wsclient.send(f"action=rotate|pitch={0}|roll={0}|")
+        #     await asyncio.sleep(1/50)
+        # await self.wsclient.send(f"action=closefile|")
+        n = 10
+        step_change = 16/n
+        max_pitch = 8
+        max_roll = 16
+        random_roll = round(random.uniform(-16, 16), 2)
+        random_pitch = round(random.uniform(-8.5, 8.5), 2)
+        for i in range(1000):
+            await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
+            sleep(0.5)
             if self.in_position():
                 self.iMU_client.send_message("action=r_xl|")
                 if self.is_data_ready():
