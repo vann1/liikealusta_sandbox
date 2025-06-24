@@ -412,8 +412,8 @@ class Sandbox():
         step_change = 16/n
         max_pitch = 8
         max_roll = 16
-        random_roll = random.randint(-16, 16)
-        random_pitch = random.randint(-8.5,8.5)
+        random_roll = round(random.uniform(-16, 16), 2)
+        random_pitch = round(random.uniform(-8.5, 8.5), 2)
         for i in range(1000):
             await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
             sleep(0.5)
