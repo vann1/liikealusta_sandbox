@@ -52,7 +52,7 @@ def convert_val_into_format(value, format, signed=False):
         high_decimal_part = format2 - register_size
         low_dec_val, high_dec_val = split_nbit_to_decimal_components(value=low_val, high_decimal_part=high_decimal_part)
         if signed:
-                whole_val = get_twos_complement(bit=format1-1, value=whole_val)
+                whole_val = get_twos_complement(bit=format1-1, value=whole_val)#
         return [low_dec_val, whole_val | high_dec_val]
     else:
         raise Exception("Unsupported format")
