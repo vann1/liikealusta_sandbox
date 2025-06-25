@@ -18,6 +18,14 @@ def ask_float(msg):
             return float(input(msg))
         except ValueError:
             pass
+
+def ask_int(msg):
+    while True:
+        try:
+            return int(input(msg))
+        except ValueError:
+            pass
+
 class Sandbox():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
@@ -560,18 +568,24 @@ class Sandbox():
             self.client_left.write_register(address=7188, value=10000)
             self.logger.info(f"Updated modbus cntrlval to {val}")
 
+    async def change_h_vel(self):
+        await self.init()
+        while True:
+            num = ask_float("give a int number")
+            num = max(50, min(500, num))
+            self.client_left.write_registers(address=config.HOST_VEL_MAXIMUM, values=num)
+            self.logger.info(f"Updated host velocity to {num}")
 
     def faultreset(self):
         """Clears all active faults from both actuators."""
         self.client_left.write_register(address=4316,value=32768)
         self.client_left.write_register(address=4316,value=32768)
-
-
+  
 if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.asd())
-    asyncio.run(sandbox.change_modbuscntrl_val())
+    asyncio.run(sandbox.change_h_vel())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
