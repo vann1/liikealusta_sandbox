@@ -513,13 +513,13 @@ class Sandbox():
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
             self.dataset = open("pitchroll3.csv", "a")
-            self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
-            if files:
-                self.BTfile = open("BoardTemp.txt", "w")
-                self.ATfile = open("ActuatorTemp.txt", "w")
-                self.ICfile = open("IContinous.txt", "w")
-                self.VBUSfile = open("VBUS.txt", "w")
-            await self.wsclient.connect()
+            # self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
+            # if files:
+            #     self.BTfile = open("BoardTemp.txt", "w")
+            #     self.ATfile = open("ActuatorTemp.txt", "w")
+            #     self.ICfile = open("IContinous.txt", "w")
+            #     self.VBUSfile = open("VBUS.txt", "w")
+            # await self.wsclient.connect()
         except Exception as e:
             self.logger.error("TÄSSÄ",e)
     
@@ -581,13 +581,15 @@ class Sandbox():
     async def crawl(self):
         await self.init()
         start_i = 8200
-        for i in range(100):
+        for i in range(100):#8204
             success = False
             next_register = start_i + i
             try:
                 result = self.client_left.read_holding_registers(count=1, address=next_register)
-                if result.registers[0] == config.HOST_VEL_MAXIMUM:
-                    self.logger.info(f"Found host velocity mapping, i: {i}")
+                val=result.registers[0] 
+                self.logger.info(f"mapping: {next_register} == {val}")
+                if val== config.HOST_VEL_MAXIMUM:
+                    self.logger.warning(f"Found host velocity mapping, i: {next_register}")
             except Exception as e:
                 self.logger.info(f"Read at i: {i} failed")
                 continue
