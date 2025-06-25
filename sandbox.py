@@ -12,6 +12,13 @@ from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
 from tcp_socket_client import TCPSocketClient
 config = MotorConfig()
 
+def ask_float(msg):
+    while True:
+        try:
+            return float(input(msg))
+        except ValueError:
+            pass
+
 class Sandbox():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
@@ -430,6 +437,10 @@ class Sandbox():
             random_roll = round(random.uniform(-16, 16), 2)
             random_pitch = round(random.uniform(-8.5, 8.5), 2)
             a=10
+        random.seed(20)
+        random_roll = round(random.uniform(-16, 16), 2)
+        random_pitch = round(random.uniform(-8.5, 8.5), 2)
+        for i in range(1000):
             await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
             await asyncio.sleep(0.5)
 
@@ -536,7 +547,20 @@ class Sandbox():
             self.ATfile.close()
             self.ICfile.close()
             self.VBUSfile.close()
-            
+
+    def change_modbuscntrl_val(self):
+        while True:
+            num = ask_float("give a float number")
+            num = max(100, min(500, num))
+            diff = 100
+            response = self.client_left.read_input_registers(address=7188, count=1)
+            val = response.registers[0]
+            self.logger.info(f"Current position {val}")
+            val = val - diff
+            self.client_left.write_register(address=7188, value=val)
+            self.logger.info(f"Updated modbus cntrlval to {val}")
+
+
     def faultreset(self):
         """Clears all active faults from both actuators."""
         self.client_left.write_register(address=4316,value=32768)
@@ -546,6 +570,8 @@ class Sandbox():
 if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
+    sandbox.change_modbuscntrl_val()
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
