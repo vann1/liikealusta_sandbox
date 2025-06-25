@@ -1,10 +1,5 @@
 import math
-import sys
 from pathlib import Path
-import os
-import asyncio
-import re
-
 
 FAULT_RESET_BIT = 15
 ENABLE_MAINTAINED_BIT = 1
@@ -15,28 +10,117 @@ ACTUATOR_TEMPERATURE = 8
 
 UVEL32_RESOLUTION = 1 / (2**24)
 UACC32_RESOLUTION = 1 / (2**20)
-
 UCUR16_RESOLUTION = 1 / (2**7)
+
 UCUR16_LOW_MAX = 2**7
 UCUR32_DECIMAL_MAX = 2**23
 UVOLT32_DECIMAL_MAX = 2**21
+    
+def convert_val_into_format(value, format, signed=False):
+    """
+    Takes in a desired value and register format as a param and returns it in the correct form
+    """
+    formats = format.split(".")
+    register_size = 16
+    if len(formats) < 2:
+        raise ValueError()
 
-def started_from_exe():
-    return getattr(sys, 'frozen', False)
+    try:
+        format1 = abs(int(formats[0]))
+        format2 = abs(int(formats[1]))
+    except ValueError:
+        raise
+    
+    decimal, whole = math.modf(value) 
+    format_diff = format2 - register_size 
+    whole = int(whole)
+    whole_val = whole << format_diff
+    ### 1 register
+    if format1 <= 16 and format2 <= 16 and format1+format2 == 16:
+        if format2 == 0:
+            return whole
+            
+        low_val = unnormalize_decimal(decimal, format2)
+        result = whole_val | low_val
+        return result
+    ### 2 registers
+    elif format1 <= 16 and format2 >= 16 and format1+format2 == 32:
+        low_val = unnormalize_decimal(decimal=decimal, max_n=format2)
+        high_decimal_part = format2 - register_size
+        low_dec_val, high_dec_val = split_nbit_to_decimal_components(value=low_val, high_decimal_part=high_decimal_part)
+        if signed:
+                whole_val = get_twos_complement(bit=format1-1, value=whole_val)
+        return [low_dec_val, whole_val | high_dec_val]
+    else:
+        raise Exception("Unsupported format")
 
-def find_venv_python(file):
-        for parent in get_current_path(file).parents:
-                if (parent / ".venv").exists():
-                        return os.path.join(parent, ".venv\Scripts\python.exe")
-        raise FileNotFoundError("Could not find project root (containing '.venv' folder)")
+def format_response(**kwargs):
+       """
+       Expects possible kwargs of event=event, action=action, message=message
+       """
+       msg_parts = []
+       for key, val in kwargs.items():
+              msg_parts.append(f"|{key}={val}|")
+        
+       return "".join(msg_parts)
+
+def registers_convertion(register,format,signed=False):
+        format_1, format_2 = format.split(".")
+        format_1 = int(format_1)
+        format_2 = int(format_2)
+
+        if len(register) == 1: # Single register Example 9.7
+                # Seperates single register by format
+                register_high, register_low = bit_high_low_both(register[0], format_2)
+                # Normalizes decimal between 0-1
+                register_low_normalized = general_normalize_decimal(register_low, format_2)
+                # If signed checks whether if its two complement
+                if signed: 
+                        register_high = get_twos_complement(format_1 - 1, register_high)
+                return register_high + register_low_normalized
+        else: # Two registers
+                # Checks what's the format. Examples: 16.16, 8.24, 12.20
+                if format_1 <= 16 and format_2 >= 16: 
+                        # Format difference for seperating "shared" register
+                        format_difference = 16 - format_1 
+                        # Seperates "shared" register
+                        register_val_high, register_val_low = bit_high_low_both(register[1], format_difference)
+                        # Combines decimal values into a single binary
+                        register_val_low = combine_bits(register_val_low,register[0])
+                        # Normalizes decimal between 0-1
+                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
+                        # If signed checks whether if its two complement
+                        if signed: 
+                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
+                        return register_val_high + register_low_normalized
+                else: # Examples: 32.0 20.12 30.2
+                        # Format difference for seperating "shared" register
+                        format_difference = 32 - format_1
+                        # Seperates "shared" register
+                        register_val_high, register_val_low = bit_high_low_both(register[0], format_difference)
+                        # Combines integer values into a single binary
+                        register_val_high = combine_bits(register[1],register_val_high)
+                        # Normalizes decimal between 0-1
+                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
+                        # If signed checks whether if its two complement
+                        if signed:
+                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
+                        return register_val_high + register_low_normalized
+
+def combine_bits(high_bit_part, low_bit_part):
+        result = (high_bit_part << 16) | low_bit_part
+        return result
+
+def general_normalize_decimal(value, max_n):
+        return value / 2**max_n
+
+def unnormalize_decimal(decimal, max_n):
+        return abs(int(decimal * 2**max_n))
 
 def convert_to_revs(pfeedback):
-    decimal = pfeedback[0] / 65535
+    decimal = pfeedback[0] / 65536
     num = pfeedback[1]
     return num + decimal
-
-def get_exe_temp_dir():
-        return getattr(sys, "_MEIPASS")
 
 def extract_part(part, message):
     start_idx = message.find(part)
@@ -87,6 +171,15 @@ def shift_bits(number, shift_bit_amount):
         result = number >> shift_bit_amount
         return result
 
+def split_nbit_to_decimal_components(value, high_decimal_part, low_decimal_part=16):
+       """Takes in low registers decimal count and high registers decimal count
+         and the combined value and splits it to all the different parts"""
+       low_mask = (2**low_decimal_part)-1
+       high_mask = (2**high_decimal_part) - 1
+       low_value = value & low_mask
+       high_value = (value >> low_decimal_part) & high_mask
+       return low_value, high_value
+
 def split_24bit_to_components(value):
     """
     Splits a number between 0 and 1 into two parts: a 16-bit piece and an 8-bit piece.
@@ -98,7 +191,7 @@ def split_24bit_to_components(value):
     These two parts together make up the original 24-bit value.
 
     Args:
-        value (float): A number between 0 and 1 (inclusive). 
+        value (float): A number between 0 and 1 (uninclusive). 
                        Anything outside this range returns None.
 
     Returns:
@@ -108,12 +201,11 @@ def split_24bit_to_components(value):
         None: If the input is less than 0 or greater than 1.
 
    Notes:
-        - UVEL32_RESOLUTION = 1 / (2^24 - 1) ensures the full 24-bit range (0 to 
+        - UVEL32_RESOLUTION = 1 / (2^24) ensures the full 24-bit range (0 to 
           16,777,215) maps to 0-1. So, value * (1 / resolution) gives the 24-bit 
           integer, and the function splits that into 16-bit and 8-bit chunks.
         - Input is capped at 0-1 because it represents a fraction of the max 
           24-bit value (16,777,215).
-
     """
     # Check if input is valid (between 0 and 1)
     if value < 0 or value > 1:
@@ -142,8 +234,6 @@ def split_20bit_to_components(value):
            return None
     
     scaled_value = int(value / UACC32_RESOLUTION)
-    if scaled_value == (2**20-1):
-           scaled_value = scaled_value - 1
     scaled_value = scaled_value & 0xFFFFF # 20 bits 
 
     # Extract 4-bit high part (bits 16-19)
@@ -159,23 +249,12 @@ def normlize_decimal_ucur32(value):
 def normalize_decimal_uvolt32(value):
        return value / UVOLT32_DECIMAL_MAX
 
-def unnormalize_decimal(decimal, max_n):
-        return decimal * 2**max_n
-
-def general_normalize_decimal(value, max_n):
-        return value / 2**max_n
-
-### TODO - tee geneerinen bitti shiftaus functio
 def combine_to_21bit(sixteen_bit_val, five_bit_val):
         sixteen_bit_val = sixteen_bit_val & 0xFFFF
         five_bit_val = five_bit_val & 31
 
         result = (five_bit_val << 16) | sixteen_bit_val
 
-        return result
-
-def combine_bits(high_bit_part, low_bit_part):
-        result = (high_bit_part << 16) | low_bit_part
         return result
 
 def combine_to_23bit(sixteen_bit, seven_bit):
@@ -282,8 +361,8 @@ def convert_vel_rpm_revs(rpm):
                 rpm = int(rpm)
         except ValueError:
                 raise
-        if rpm < 0 or rpm > 350:
-                rpm = 350
+        if rpm < 0 or rpm > 800:
+                rpm = 800
         
         revs = rpm/60.0
         decimal, whole = math.modf(revs)
@@ -302,20 +381,14 @@ def convert_acc_rpm_revs(rpm):
         except ValueError:
                 raise
         
-        if rpm < 0 or rpm > 750:
-                rpm = 750
+        if rpm < 0 or rpm > 1300:
+                rpm = 1300
         
         revs = rpm/60.0
         decimal, whole = math.modf(revs)
         sixteen_b, four_b = split_20bit_to_components(decimal)
         whole_num_register_bits = combine_12_4bit(int(whole), four_b)
         return (whole_num_register_bits, sixteen_b)
-
-def get_base_path(file):
-    if started_from_exe():
-        return str(Path(sys.executable).resolve().parent)
-    else:
-        return Path(os.path.abspath(file)).parent.parent
 
 def get_current_path(file):
         return Path(file).parent
@@ -332,49 +405,3 @@ def bit_high_low_both(number, low_bit, output="both"):
                 return register_val_low
         else:
                 raise Exception
-def registers_convertion(register,format,signed):
-        format_1, format_2 = format.split(".")
-        format_1 = int(format_1)
-        format_2 = int(format_2)
-
-        if len(register) == 1: # Single register Example 9.7
-                # Seperates single register by format
-                register_high, register_low = bit_high_low_both(register[0], format_2)
-                # Normalizes decimal between 0-1
-                register_low_normalized = general_normalize_decimal(register_low, format_2)
-                # If signed checks whether if its two complement
-                if signed: 
-                        register_high = get_twos_complement(format_1 - 1, register_high)
-                return register_high + register_low_normalized
-        else: # Two registers
-                # Checks what's the format. Examples: 16.16, 8.24, 12.20
-                if format_1 <= 16 and format_2 >= 16: 
-                        # Format difference for seperating "shared" register
-                        format_difference = 16 - format_1 
-                        # Seperates "shared" register
-                        register_val_high, register_val_low = bit_high_low_both(register[1], format_difference)
-                        # Combines decimal values into a single binary
-                        register_val_low = combine_bits(register_val_low,register[0])
-                        # Normalizes decimal between 0-1
-                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
-                        # If signed checks whether if its two complement
-                        if signed: 
-                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
-                        return register_val_high + register_low_normalized
-                else: # Examples: 32.0 20.12 30.2
-                        # Format difference for seperating "shared" register
-                        format_difference = 32 - format_1
-                        # Seperates "shared" register
-                        register_val_high, register_val_low = bit_high_low_both(register[0], format_difference)
-                        # Combines integer values into a single binary
-                        register_val_high = combine_bits(register[1],register_val_high)
-                        # Normalizes decimal between 0-1
-                        register_low_normalized = general_normalize_decimal(register_val_low, format_2)
-                        # If signed checks whether if its two complement
-                        if signed:
-                                register_val_high = get_twos_complement(format_1 - 1, register_val_high)
-                        return register_val_high + register_low_normalized
-                        
-
-
-

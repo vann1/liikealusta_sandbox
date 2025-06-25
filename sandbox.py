@@ -572,8 +572,10 @@ class Sandbox():
         await self.init()
         while True:
             num = ask_float("give a int number")
-            num = max(50, min(500, num))
-            self.client_left.write_registers(address=config.HOST_VEL_MAXIMUM, values=num)
+            num = max(1, min(6, num))
+            values = utils.convert_val_into_format(value=num, format="8.24")
+            a = 10
+            self.client_left.wri6te_registers(address=config.HOST_VEL_MAXIMUM, values=values)
             self.logger.info(f"Updated host velocity to {num}")
 
     def faultreset(self):
