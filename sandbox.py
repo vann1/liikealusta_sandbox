@@ -594,6 +594,21 @@ class Sandbox():
                 self.logger.info("lol")
             self.logger.info(f"Updated host velocity to {num}")
 
+    def crawl(self):
+        start_i = 8200
+        for i in range(100):
+            success = False
+            next_register = start_i + i
+            try:
+                result = self.client_left.read_holding_registers(count=1, address=next_register)
+                if result.registers[0] == config.HOST_VEL_MAXIMUM:
+                    self.logger.info(f"Found host velocity mapping, i: {i}")
+            except Exception as e:
+                self.logger.info(f"Read at i: {i} failed")
+                continue
+
+        print(f"Crawling compelete.")
+
     def faultreset(self):
         """Clears all active faults from both actuators."""
         self.client_left.write_register(address=4316,value=32768)
