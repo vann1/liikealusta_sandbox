@@ -18,9 +18,9 @@ class Scope():
         self.delta_time = 0
    
         # cmd line arguments
-        self.trigger_register = 566
-        self.trigger_register_format = "9.23"
-        self.trigger_register_signed = False
+        self.trigger_register = 344
+        self.trigger_register_format = "8.24"
+        self.trigger_register_signed = True
         self.count = 2
         self.trigger_level = 2.0
         self.window_size = 100
@@ -49,8 +49,10 @@ class Scope():
         perror = self.client_left.read_holding_registers(address=382, count=2)
         host_velocity = self.client_left.read_holding_registers(address=4306, count=2)
         pfeedback = self.client_left.read_holding_registers(address=378, count=2)
+        vfeedback = self.client_left.read_holding_registers(address=344, count=2)
+
         trigger_value = self.client_left.read_holding_registers(address=self.trigger_register, count=self.count)
-        return (idisplay,perror,host_velocity,pfeedback,trigger_value)
+        return (idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback)
     
     def draw_graph(self):
         while self.monitor_time > 0:
@@ -59,24 +61,25 @@ class Scope():
                 self.previous_time = time.time()
             else:
                 self.previous_time = time.time()
-            idisplay,perror,host_velocity,pfeedback,trigger_value = self.poll_data()
-            trigger_value = utils.registers_convertion(trigger_value.registers, format=self.trigger_register_format, signed=True)
+            idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback = self.poll_data()
+            trigger_value = utils.registers_convertion(trigger_value.registers, format=self.trigger_register_format, signed=self.trigger_register_signed)
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             host_velocity = utils.registers_convertion(register=host_velocity.registers, format="8.24", signed=True)
+            vfeedback = utils.registers_convertion(register=vfeedback.registers, format="8.24", signed=True)
             host_velocity *= 60
+            vfeedback *= 60
             pfeedback = utils.registers_convertion(register=pfeedback.registers, format="16.16", signed=True)
             idisplay = utils.registers_convertion(register=idisplay.registers, format="9.23", signed=True)
-
             if not self.triggered:
                 self.datapoint_1.append(host_velocity)
-                self.datapoint_2.append(pfeedback)
+                self.datapoint_2.append(vfeedback)
                 self.datapoint_3.append(perror)
                 self.datapoint_4.append(idisplay)
                 self.time.append(time.time())
             else:
                 self.plottable_points_1.append(host_velocity)
-                self.plottable_points_2.append(pfeedback)
+                self.plottable_points_2.append(vfeedback)
                 self.plottable_points_3.append(perror)
                 self.plottable_points_4.append(idisplay)
                 self.plottable_time.append(time.time())
@@ -98,16 +101,17 @@ class Scope():
         plt.plot(self.plottable_time, self.plottable_points_4, label="Idisplay",color="blue")
         plt.legend()
         plt.figure(2)
-        plt.plot(self.plottable_time, self.plottable_points_2, label="Pfeedback", color="green")
+        plt.plot(self.plottable_time, self.plottable_points_2, label="vfeedback", color="green")
         plt.legend()
         plt.figure(3)
         plt.plot(self.plottable_time, self.plottable_points_3, label="Perror", color="red")
-        
+        plt.legend()
+        plt.figure(4)
+        plt.plot(self.plottable_time, self.plottable_points_1, label="host velocity", color="red")
         plt.xlabel("Time")
         plt.ylabel("Values")
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.savefig('scope.png')
         plt.style.use('fivethirtyeight')
         plt.show()
 if __name__ == "__main__":

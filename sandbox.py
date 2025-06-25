@@ -406,6 +406,13 @@ class Sandbox():
             response_left = utils.registers_convertion(response_left.registers, format="9.7", signed=False)        
             response_right = utils.registers_convertion(response_right.registers, format="9.7", signed=False)  
             self.write_to_file(registers_file, title="ITrip ", left_vals=[response_left], right_vals=[response_right])
+
+            # host acceleratio 4308 
+            response_left = self.client_left.read_holding_registers(address=4308, count=2)
+            response_right = self.client_right.read_holding_registers(address=4308, count=2)
+            
+            a = 10
+            self.write_to_file(registers_file, title="Host acceleratio ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
@@ -538,8 +545,12 @@ class Sandbox():
 
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    # sandbox.read_register()
+    sandbox.read_register()
+
+    b=1333 >> 4
+    b*=60
+    z = 1

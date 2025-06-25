@@ -4,6 +4,7 @@ from utils import extract_part
 from motionplatform_interface import MotionPlatformInterface
 
 class CrazyDemo():
+    telemetry_data_processed=True
     def recive_telemetry_data(self,message):
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
@@ -11,8 +12,11 @@ class CrazyDemo():
         roll = float(roll)
         pitch -= 0.3
         roll -= 0.5
+        pitch /= 5
+        roll /= 3.5
         self.mpi.set_angles(pitch,roll)
         print(pitch,",",roll)
+        self.telemetry_data_processed=True
         
 
 
@@ -27,7 +31,9 @@ if __name__ == "__main__":
     tcp_client.connect()
 
     while True:
-        tcp_client.send_message("action=r_xl|")
-        sleep((1/10))
+        if crazyDemo.telemetry_data_processed:
+            crazyDemo.telemetry_data_processed=False
+            tcp_client.send_message("action=r_xl|")
+            sleep((1/5))
         
         
