@@ -22,7 +22,7 @@ class Scope():
         self.trigger_register_format = "8.24"
         self.trigger_register_signed = True
         self.count = 2
-        self.trigger_level = 2.0
+        self.trigger_level = 0.0
         self.window_size = 100
         
         # deque array for datapoints

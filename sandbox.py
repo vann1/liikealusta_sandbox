@@ -18,7 +18,6 @@ def ask_float(msg):
             return float(input(msg))
         except ValueError:
             pass
-
 class Sandbox():
     SERVER_URL = "http://127.0.0.1:5001/"
     SERVER_IP_LEFT="192.168.0.211"
@@ -501,7 +500,7 @@ class Sandbox():
     async def init(self, files=True):
         try:
             self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
-            self.iMU_client.connect()
+            # self.iMU_client.connect()
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
@@ -548,16 +547,17 @@ class Sandbox():
             self.ICfile.close()
             self.VBUSfile.close()
 
-    def change_modbuscntrl_val(self):
+    async def change_modbuscntrl_val(self):
+        await self.init()
         while True:
             num = ask_float("give a float number")
-            num = max(100, min(500, num))
+            num = max(0, min(10000, num))
             diff = 100
             response = self.client_left.read_input_registers(address=7188, count=1)
             val = response.registers[0]
             self.logger.info(f"Current position {val}")
-            val = val - diff
-            self.client_left.write_register(address=7188, value=val)
+            val = int(val + num)
+            self.client_left.write_register(address=7188, value=10000)
             self.logger.info(f"Updated modbus cntrlval to {val}")
 
 
@@ -571,12 +571,8 @@ if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.asd())
-    sandbox.change_modbuscntrl_val()
+    asyncio.run(sandbox.change_modbuscntrl_val())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    sandbox.read_register()
-
-    b=1333 >> 4
-    b*=60
-    z = 1
+    # sandbox.read_register()
