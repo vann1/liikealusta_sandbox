@@ -427,6 +427,13 @@ class Sandbox():
             
             a = 10
             self.write_to_file(registers_file, title="Host acceleratio ", left_vals=[response_left], right_vals=[response_right])
+
+                        # host acceleratio 4308 
+            response_left = self.client_left.read_holding_registers(address=config.HOST_VEL_MAXIMUM, count=2)
+            response_right = self.client_right.read_holding_registers(address=config.HOST_VEL_MAXIMUM, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="8.24", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="8.24", signed=False)  
+            self.write_to_file(registers_file, title="Host vel ", left_vals=[response_left], right_vals=[response_right])
         finally:
             registers_file.close()
 
@@ -570,12 +577,21 @@ class Sandbox():
 
     async def change_h_vel(self):
         await self.init()
+        # values = utils.convert_val_into_format(value=3, format="8.24")
+        # self.client_left.write_registers(address=config.HOST_VEL_MAXIMUM, values=values)
+        # self.client_right.write_registers(address=config.HOST_VEL_MAXIMUM, values=values)
         while True:
+            
             num = ask_float("give a int number")
             num = max(1, min(6, num))
             values = utils.convert_val_into_format(value=num, format="8.24")
             a = 10
-            self.client_left.wri6te_registers(address=config.HOST_VEL_MAXIMUM, values=values)
+            try:
+                    
+                self.client_left.write_registers(address=config.HOST_VEL_MAXIMUM, values=values)
+                self.client_right.write_registers(address=config.HOST_VEL_MAXIMUM, values=values)
+            except:
+                self.logger.info("lol")
             self.logger.info(f"Updated host velocity to {num}")
 
     def faultreset(self):
@@ -587,8 +603,8 @@ if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.asd())
-    asyncio.run(sandbox.change_h_vel())
+    # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    # sandbox.read_register()
+    sandbox.read_register()
