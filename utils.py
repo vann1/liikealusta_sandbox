@@ -32,20 +32,23 @@ def convert_val_into_format(value, format, signed=False):
         raise
     
     decimal, whole = math.modf(value) 
-    format_diff = format2 - register_size 
+    
     whole = int(whole)
-    whole_val = whole << format_diff
+    
     ### 1 register
     if format1 <= 16 and format2 <= 16 and format1+format2 == 16:
         if format2 == 0:
             return whole
             
         low_val = unnormalize_decimal(decimal, format2)
+        whole_val = whole << format2
         result = whole_val | low_val
         return result
     ### 2 registers
     elif format1 <= 16 and format2 >= 16 and format1+format2 == 32:
         low_val = unnormalize_decimal(decimal=decimal, max_n=format2)
+        format_diff = format2 - register_size 
+        whole_val = whole << format_diff
         high_decimal_part = format2 - register_size
         low_dec_val, high_dec_val = split_nbit_to_decimal_components(value=low_val, high_decimal_part=high_decimal_part)
         if signed:
