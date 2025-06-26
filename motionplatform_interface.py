@@ -25,8 +25,8 @@ class MotionPlatformInterface():
         Connects to websocket server.
         """
         try:
-            if not get_process_info(self,"gui"):
-                raise Exception("Run motionplatform.bat file first!")
+            # if not get_process_info(self,"gui"):
+            #     raise Exception("Run motionplatform.bat file first!")
             self.logger.info("_init ran")
             self.wsclient = WebSocketClient(logger=self.logger, identity="interface", on_message=self._handle_client_message)
             self.logger.info("Ws client obj made")
@@ -46,7 +46,7 @@ class MotionPlatformInterface():
                     raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
                 await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
             except Exception as e:
-                self.logger.error("Error while calling rotate function.")
+                self.logger.error(f"Error while calling rotate function.{e}")
 
     def _start_background_loop(self):
         """Start event loop in background thread"""

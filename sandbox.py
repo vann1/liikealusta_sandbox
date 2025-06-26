@@ -507,7 +507,7 @@ class Sandbox():
 
     async def init(self, files=True):
         try:
-            self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
+            # self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
             # self.iMU_client.connect()
             self.client_right.connect()
             self.client_left.connect()
@@ -574,8 +574,9 @@ class Sandbox():
             num = ask_float("give a int number")
             num = max(1, min(6, num))
             values = utils.convert_val_into_format(value=num, format="8.24")
-            a = 10
-            self.client_left.wri6te_registers(address=config.HOST_VEL_MAXIMUM, values=values)
+            self.client_left.write_registers(address=8604, values=values)
+            res = self.client_left.read_holding_registers(address=config.HOST_VEL_MAXIMUM, count=2)
+            a = 20
             self.logger.info(f"Updated host velocity to {num}")
 
     async def crawl(self):
@@ -606,8 +607,8 @@ if __name__ == "__main__":
     # asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.change_h_vel())
-    asyncio.run(sandbox.crawl())
+    # asyncio.run(sandbox.crawl())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    # sandbox.read_register()
+    sandbox.read_register()
