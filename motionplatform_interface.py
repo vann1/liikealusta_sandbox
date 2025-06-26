@@ -347,6 +347,8 @@ class WebSocketClient():
                         self.on_message(response)
                 except ConnectionClosed:
                     self.logger.info("Client disconnected from the server")
+                    # Expected client closage dont try to reconnect
+                    self.is_running = False
                     break
                 except Exception as e:
                     self.logger.error(f"Error receiving message: {e}")
