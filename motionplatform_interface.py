@@ -3,6 +3,7 @@ import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from colorama import init, Fore, Style
+import sys
 from typing import Union
 import subprocess
 from time import time, sleep
@@ -349,7 +350,8 @@ class WebSocketClient():
                     self.logger.info("Client disconnected from the server")
                     # Expected client closage dont try to reconnect
                     self.is_running = False
-                    break
+                    self.logger.error("server closed connection, likely two different connetions")
+                    os._exit(1)
                 except Exception as e:
                     self.logger.error(f"Error receiving message: {e}")
                     break

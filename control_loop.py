@@ -18,7 +18,7 @@ class ControlLoop():
         self.joy = NiDAQ_controller.NiDAQJoysticks()
         self.MAX_PITCH = 8.5
         self.MAX_ROLL = 16
-        self.MAX_DIFF = 0.2
+        self.MAX_DIFF = 0
         self.logger = None
         self.wsclient = None
         self.asd = True
@@ -27,7 +27,7 @@ class ControlLoop():
         self.mpi.init()
         while True:
             try:
-                await asyncio.sleep(0.01)
+                await asyncio.sleep(0.07)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3] * (-1)

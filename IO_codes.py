@@ -21,6 +21,26 @@ IEG_MOTION = {
     1024: "Emergency Move",
 }
 
+OEG_MOTION = {
+    1: "Stopped",
+    2: "Paused",
+    4: "Jogging",
+    8: "Jogging plus",
+    16: "Jogging minus",
+    32: "Homing active",
+    64: "Startup active",
+    128: "N/A",
+    256: "Dedicated move active",
+    512: "Move active",
+    1024: "Secondary move active",
+    2048: "N/A",
+    4096: "In position",
+    8192: "At home position one",
+    16384: "At home position two",
+    32768: "Dedicated move position",
+}
+
+
 IEG_MODE = {
     1: "Enable Momentary",
     2: "Enable maintained",

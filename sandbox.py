@@ -8,7 +8,7 @@ import utils as utils
 from motors_config import MotorConfig
 from utils import extract_part, is_nth_bit_on
 from test import bit_high_low
-from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS
+from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS,OEG_MOTION
 from tcp_socket_client import TCPSocketClient
 config = MotorConfig()
 
@@ -116,11 +116,17 @@ class Sandbox():
             acitive_values = self.get_active_bit_values(value)
             for value in acitive_values:
                 definitions.append(OPTIONS[value])
+        elif dict=="OEG_MOTION":
+            acitive_values = self.get_active_bit_values(value)
+            for value in acitive_values:
+                definitions.append(OEG_MOTION[value])
+
 
         return "\n".join(definitions)
 
     def read_register(self):
         try:
+            
             registers_file = open("registers.txt", "w")
             # RECENTFAULT #1
             response_left = self.client_left.read_holding_registers(address=846, count=1)
@@ -611,4 +617,6 @@ if __name__ == "__main__":
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
-    sandbox.read_register()
+    # sandbox.read_register()
+    b=sandbox.convert_bits_to_dict(12288,  dict="OEG_MOTION")
+    a= 2

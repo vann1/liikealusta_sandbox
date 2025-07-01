@@ -4,6 +4,8 @@ from collections import deque
 import utils as utils
 import time as time
 import matplotlib.pyplot as plt
+from motors_config import MotorConfig
+config = MotorConfig()
 
 class Scope():
     def __init__(self):
@@ -18,11 +20,12 @@ class Scope():
         self.delta_time = 0
    
         # cmd line arguments
-        self.trigger_register = 344
+        # self.trigger_register = 344
+        self.trigger_register = 360
         self.trigger_register_format = "8.24"
         self.trigger_register_signed = True
         self.count = 2
-        self.trigger_level = 0.5
+        self.trigger_level = 0.0
         self.window_size = 100
         
         # deque array for datapoints
@@ -50,9 +53,13 @@ class Scope():
         host_velocity = self.client_left.read_holding_registers(address=4306, count=2)
         pfeedback = self.client_left.read_holding_registers(address=378, count=2)
         vfeedback = self.client_left.read_holding_registers(address=344, count=2)
+        wtf = self.client_left.read_holding_registers(address=360, count=2)
         host_acc = self.client_left.read_holding_registers(address=4308, count=2)
+        analog_vel = self.client_left.read_holding_registers(address=config.ANALOG_VEL_MAXIMUM, count=2)
+        oeg_motion = self.client_left.read_holding_registers(address=105, count=1)
+
         trigger_value = self.client_left.read_holding_registers(address=self.trigger_register, count=self.count)
-        return (idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback,host_acc)
+        return (idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback,host_acc, analog_vel,oeg_motion, wtf)
     
     def draw_graph(self):
         while self.monitor_time > 0:
@@ -61,28 +68,32 @@ class Scope():
                 self.previous_time = time.time()
             else:
                 self.previous_time = time.time()
-            idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback, host_acc = self.poll_data()
+            idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback, host_acc, analog_vel,oeg_motion,wtf = self.poll_data()
             trigger_value = utils.registers_convertion(trigger_value.registers, format=self.trigger_register_format, signed=self.trigger_register_signed)
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             host_velocity = utils.registers_convertion(register=host_velocity.registers, format="8.24", signed=True)
             vfeedback = utils.registers_convertion(register=vfeedback.registers, format="8.24", signed=True)
+            wtf = utils.registers_convertion(register=wtf.registers, format="8.24", signed=True)
             host_acc = utils.registers_convertion(register=host_acc.registers, format="12.20", signed=False)
-            host_velocity *= 60
-            vfeedback *= 60
-            host_acc *= 60
+            analog_vel = utils.registers_convertion(register=analog_vel.registers, format="8.24", signed=False)
             pfeedback = utils.registers_convertion(register=pfeedback.registers, format="16.16", signed=True)
             idisplay = utils.registers_convertion(register=idisplay.registers, format="9.23", signed=True)
+            in_position = utils.is_nth_bit_on(12,oeg_motion.registers[0])
+            host_velocity *= 60
+            analog_vel *= 60
+            vfeedback *= 60
+            host_acc *= 60
             if not self.triggered:
-                self.datapoint_1.append(host_velocity)
+                self.datapoint_1.append(wtf)
                 self.datapoint_2.append(vfeedback)
-                self.datapoint_3.append(host_acc)
+                self.datapoint_3.append(analog_vel)
                 self.datapoint_4.append(idisplay)
                 self.time.append(time.time())
             else:
-                self.plottable_points_1.append(host_velocity)
+                self.plottable_points_1.append(wtf)
                 self.plottable_points_2.append(vfeedback)
-                self.plottable_points_3.append(host_acc)
+                self.plottable_points_3.append(analog_vel)
                 self.plottable_points_4.append(idisplay)
                 self.plottable_time.append(time.time())
             
@@ -106,10 +117,10 @@ class Scope():
         plt.plot(self.plottable_time, self.plottable_points_2, label="vfeedback", color="green")
         plt.legend()
         plt.figure(3)
-        plt.plot(self.plottable_time, self.plottable_points_3, label="Host acceleratio", color="red")
+        plt.plot(self.plottable_time, self.plottable_points_3, label="Analog Velocity", color="orange")
         plt.legend()
         plt.figure(4)
-        plt.plot(self.plottable_time, self.plottable_points_1, label="host velocity", color="red")
+        plt.plot(self.plottable_time, self.plottable_points_1, label="in_position", color="red")
         plt.xlabel("Time")
         plt.ylabel("Values")
         plt.legend()
