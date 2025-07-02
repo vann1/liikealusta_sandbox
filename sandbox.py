@@ -467,14 +467,9 @@ class Sandbox():
         max_pitch = 8
         max_roll = 16
         random.seed(60)
-        for i in range(500):
+        for i in range(1000):
             random_roll = round(random.uniform(-16, 16), 2)
             random_pitch = round(random.uniform(-8.5, 8.5), 2)
-            a=10
-        random.seed(20)
-        random_roll = round(random.uniform(-16, 16), 2)
-        random_pitch = round(random.uniform(-8.5, 8.5), 2)
-        for i in range(1000):
             await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
             await asyncio.sleep(0.5)
 
@@ -522,6 +517,7 @@ class Sandbox():
     def reset_ieg_mode(self):
         self.client_left.write_register(address=config.IEG_MODE, value=0)
         self.client_right.write_register(address=config.IEG_MODE, value=0)
+
     def recive_telemetry_data(self,message):
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
@@ -536,8 +532,8 @@ class Sandbox():
 
     async def init(self, files=True):
         try:
-            # self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
-            # self.iMU_client.connect()
+            self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
+            self.iMU_client.connect()
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
