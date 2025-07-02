@@ -45,10 +45,11 @@ class Sandbox():
             elapsed_time = 0
             start_time = time()
             while max_polling_duration >= elapsed_time:
-                lr = self.client_left.read_holding_registers(address=105, count=1).registers[0]
-                rr = self.client_right.read_holding_registers(address=105, count=1).registers[0]
+                lr = self.client_left.read_holding_registers(address=105, count=1)
+                rr = self.client_right.read_holding_registers(address=105, count=1)
+                print("TÄSSÄ",lr.registers[0],rr.registers[0])
                 await asyncio.sleep(0.1)
-                if is_nth_bit_on(12, lr) and is_nth_bit_on(12, rr):
+                if is_nth_bit_on(12, lr.registers[0]) and is_nth_bit_on(12, rr.registers[0]):
                     self.logger.info(f"Both motors in position, i: {i}")
                     return True
                 elapsed_time = time() - start_time
@@ -452,6 +453,9 @@ class Sandbox():
  
             self.write_to_file(registers_file, title="In position time ms ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])       
             
+            # self.client_left.write_registers(address=5116, values=[5])
+            # self.client_right.write_registers(address=5116, values=[5])
+
             response_left = self.client_left.read_holding_registers(address=7188, count=1)
             response_right = self.client_right.read_holding_registers(address=7188, count=1)
             self.write_to_file(registers_file, title="Modbus ctrl ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])       
@@ -467,23 +471,28 @@ class Sandbox():
         max_pitch = 8
         max_roll = 16
         random.seed(60)
-        for i in range(1000):
-            random_roll = round(random.uniform(-16, 16), 2)
-            random_pitch = round(random.uniform(-8.5, 8.5), 2)
-            await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
-            await asyncio.sleep(0.5)
+        try:
+            for i in range(1000):
+                random_roll = round(random.uniform(-16, 16), 2)
+                random_pitch = round(random.uniform(-8.5, 8.5), 2)
+                await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
+                await asyncio.sleep(0.5)
 
-            if await self.in_position(i):
-                self.iMU_client.send_message("action=r_xl|")
-                if await self.is_data_ready(i):
-                    r_left_revs, r_right_revs = self.get_current_position()
-                    self.telemetry_data_ready = False
+                if await self.in_position(i):
+                    # self.iMU_client.send_message("action=r_xl|")
+                    # await asyncio.sleep(0.5)
+                    # if await self.is_data_ready(i):
+                    #     r_left_revs, r_right_revs = self.get_current_position()
+                    #     self.telemetry_data_ready = False
 
-                    self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
-                    self.dataset.flush()
-                    self.logger.info(f"Wrote datapoint into the file: i: {i}")
-        self.logger.info("pitch data raksutettu")
-        self.dataset.close()
+                    #     self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
+                    #     self.dataset.flush()
+                    #     self.logger.info(f"Wrote datapoint into the file: i: {i}")
+                    pass
+            self.logger.info("pitch data raksutettu")
+            self.dataset.close()
+        except:
+            raise Exception
         
     def get_current_position(self):
         try:
@@ -496,20 +505,23 @@ class Sandbox():
             return ("N/A","N/A")
     
     async def is_data_ready(self,i, n=20) -> bool:
-        """Polls for n amount of time to check 
-        if the telemetry data have been recevied"""
-        max_polling_duration=n
-        elapsed_time = 0
-        start_time = time()
-        while max_polling_duration >= elapsed_time:
-            if self.telemetry_data_ready: 
-                self.logger.info(f"Data is raedy: i: {i}") 
-                return True
-            else:
-                await asyncio.sleep(0.1)
-            elapsed_time = time() - start_time
-        self.logger.error("Motors failed to be in position in the given time limit")
-        return False
+        try:
+            """Polls for n amount of time to check 
+            if the telemetry data have been recevied"""
+            max_polling_duration=n
+            elapsed_time = 0
+            start_time = time()
+            while max_polling_duration >= elapsed_time:
+                if self.telemetry_data_ready: 
+                    self.logger.info(f"Data is raedy: i: {i}") 
+                    return True
+                else:
+                    await asyncio.sleep(0.1)
+                elapsed_time = time() - start_time
+            self.logger.error("Failed to get data from raspberry's imu sensor")
+            return False
+        except Exception as e:
+            print(e) 
     def set_disabling_fault(self):
         self.client_left.write_register(address=5102, value=59903+1024)
         self.client_right.write_register(address=5102, value=59903+1024)    
@@ -538,13 +550,14 @@ class Sandbox():
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
             self.dataset = open("pitchroll3.csv", "a")
-            # self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
+            self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
+            await self.wsclient.connect()
+
             # if files:
             #     self.BTfile = open("BoardTemp.txt", "w")
             #     self.ATfile = open("ActuatorTemp.txt", "w")
             #     self.ICfile = open("IContinous.txt", "w")
             #     self.VBUSfile = open("VBUS.txt", "w")
-            # await self.wsclient.connect()
         except Exception as e:
             self.logger.error("TÄSSÄ",e)
     
