@@ -12,7 +12,7 @@ class Scope():
         SERVER_IP_LEFT="192.168.0.211"
         SERVER_PORT=502
         self.client_left = ModbusTcpClient(host=SERVER_IP_LEFT, port=SERVER_PORT)
-        self.monitor_time = 15
+        self.monitor_time = 30
         self.previous_time = None
         self.triggered = False
         self.plottable_points = None
@@ -21,7 +21,7 @@ class Scope():
    
         # cmd line arguments
         # self.trigger_register = 344
-        self.trigger_register = 360
+        self.trigger_register = 344
         self.trigger_register_format = "8.24"
         self.trigger_register_signed = True
         self.count = 2
@@ -53,13 +53,12 @@ class Scope():
         host_velocity = self.client_left.read_holding_registers(address=4306, count=2)
         pfeedback = self.client_left.read_holding_registers(address=378, count=2)
         vfeedback = self.client_left.read_holding_registers(address=344, count=2)
-        wtf = self.client_left.read_holding_registers(address=360, count=2)
         host_acc = self.client_left.read_holding_registers(address=4308, count=2)
         analog_vel = self.client_left.read_holding_registers(address=config.ANALOG_VEL_MAXIMUM, count=2)
         oeg_motion = self.client_left.read_holding_registers(address=105, count=1)
 
         trigger_value = self.client_left.read_holding_registers(address=self.trigger_register, count=self.count)
-        return (idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback,host_acc, analog_vel,oeg_motion, wtf)
+        return (idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback,host_acc, analog_vel,oeg_motion)
     
     def draw_graph(self):
         while self.monitor_time > 0:
@@ -68,13 +67,12 @@ class Scope():
                 self.previous_time = time.time()
             else:
                 self.previous_time = time.time()
-            idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback, host_acc, analog_vel,oeg_motion,wtf = self.poll_data()
+            idisplay,perror,host_velocity,pfeedback,trigger_value,vfeedback, host_acc, analog_vel,oeg_motion = self.poll_data()
             trigger_value = utils.registers_convertion(trigger_value.registers, format=self.trigger_register_format, signed=self.trigger_register_signed)
             trigger_value = abs(trigger_value)
             perror = utils.registers_convertion(register=perror.registers, format="16.16", signed=True)
             host_velocity = utils.registers_convertion(register=host_velocity.registers, format="8.24", signed=True)
             vfeedback = utils.registers_convertion(register=vfeedback.registers, format="8.24", signed=True)
-            wtf = utils.registers_convertion(register=wtf.registers, format="8.24", signed=True)
             host_acc = utils.registers_convertion(register=host_acc.registers, format="12.20", signed=False)
             analog_vel = utils.registers_convertion(register=analog_vel.registers, format="8.24", signed=False)
             pfeedback = utils.registers_convertion(register=pfeedback.registers, format="16.16", signed=True)
@@ -85,13 +83,13 @@ class Scope():
             vfeedback *= 60
             host_acc *= 60
             if not self.triggered:
-                self.datapoint_1.append(wtf)
+                self.datapoint_1.append(in_position)
                 self.datapoint_2.append(vfeedback)
                 self.datapoint_3.append(analog_vel)
                 self.datapoint_4.append(idisplay)
                 self.time.append(time.time())
             else:
-                self.plottable_points_1.append(wtf)
+                self.plottable_points_1.append(in_position)
                 self.plottable_points_2.append(vfeedback)
                 self.plottable_points_3.append(analog_vel)
                 self.plottable_points_4.append(idisplay)

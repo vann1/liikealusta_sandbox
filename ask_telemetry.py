@@ -10,8 +10,7 @@ class CrazyDemo():
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
-        pitch -= 0.3
-        roll -= 0.5
+
         pitch /= 5
         roll /= 3.5
         self.mpi.set_angles(pitch,roll)

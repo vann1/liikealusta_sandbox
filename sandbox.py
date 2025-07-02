@@ -432,7 +432,32 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=4308, count=2)
             
             a = 10
-            self.write_to_file(registers_file, title="Host acceleratio ", left_vals=[response_left], right_vals=[response_right])
+
+            # Analog vel 7106 
+            response_left = self.client_left.read_holding_registers(address=7106, count=2)
+            response_right = self.client_right.read_holding_registers(address=7106, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="8.24", signed=False)        
+            response_right = utils.registers_convertion(response_right.registers, format="8.24", signed=False)  
+            self.write_to_file(registers_file, title="Analog velocity ", left_vals=[response_left], right_vals=[response_right])
+
+            response_left = self.client_left.read_holding_registers(address=380, count=2)
+            response_right = self.client_right.read_holding_registers(address=380, count=2)
+            response_left = utils.registers_convertion(response_left.registers, format="16.16", signed=True)        
+            response_right = utils.registers_convertion(response_right.registers, format="16.16", signed=True)  
+            self.write_to_file(registers_file, title="Command position ", left_vals=[response_left], right_vals=[response_right])
+        
+
+            response_left = self.client_left.read_holding_registers(address=5116, count=1)
+            response_right = self.client_right.read_holding_registers(address=5116, count=1)
+ 
+            self.write_to_file(registers_file, title="In position time ms ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])       
+            
+            response_left = self.client_left.read_holding_registers(address=7188, count=1)
+            response_right = self.client_right.read_holding_registers(address=7188, count=1)
+            self.write_to_file(registers_file, title="Modbus ctrl ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])       
+
+    
+   
         finally:
             registers_file.close()
 
@@ -462,6 +487,7 @@ class Sandbox():
                 if await self.is_data_ready(i):
                     r_left_revs, r_right_revs = self.get_current_position()
                     self.telemetry_data_ready = False
+
                     self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
                     self.dataset.flush()
                     self.logger.info(f"Wrote datapoint into the file: i: {i}")
@@ -505,7 +531,8 @@ class Sandbox():
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
-        roll -= 0.6
+        pitch -= 0.61
+        roll += 0.53
         print(pitch,",",roll) 
         self.pitch = pitch
         self.roll = roll
@@ -610,13 +637,12 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    # asyncio.run(sandbox.asd())
-    # asyncio.run(sandbox.asd())
+    asyncio.run(sandbox.asd())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
     # asyncio.run(readValues.main())
     # sandbox.faultreset()
     # readValues.reset_ieg_mode()
     # sandbox.read_register()
-    b=sandbox.convert_bits_to_dict(12288,  dict="OEG_MOTION")
-    a= 2
+    # b=sandbox.convert_bits_to_dict(12288,  dict="OEG_MOTION")
+    # a= 2
