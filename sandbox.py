@@ -44,12 +44,14 @@ class Sandbox():
             start_time = time()
             while max_polling_duration >= elapsed_time:
                 registers = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
-                velocity = registers_convertion(registers,format="8.24", signed=True)
+                velocity = abs(registers_convertion(registers,format="8.24", signed=True))
                 velocity *= 60
                 print(f"Velocity {velocity}")
+                if velocity < 1:
+                    return True
                 elapsed_time = time() - start_time
-                return True
             self.logger.error("Motors did not stop in the given time frame")
+            return False
         except Exception as e:
             print(e)
             return False
@@ -495,23 +497,15 @@ class Sandbox():
                 await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
                 await asyncio.sleep(0.5)
 
-                if await self.in_position(i):
-                    # self.iMU_client.send_message("action=r_xl|")
-                    # await asyncio.sleep(0.5)
-                    # if await self.is_data_ready(i):
-                    #     r_left_revs, r_right_revs = self.get_current_position()
-                    #     self.telemetry_data_ready = False
-            if await self.in_position(i):
-                self.iMU_client.send_message("action=r_xl|")
-                await asyncio.sleep(0.5)
-                if await self.is_data_ready(i):
-                    r_left_revs, r_right_revs = self.get_current_position()
-                    self.telemetry_data_ready = False
-
-                    #     self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
-                    #     self.dataset.flush()
-                    #     self.logger.info(f"Wrote datapoint into the file: i: {i}")
-                    pass
+                if await self.stopped(i):
+                    await asyncio.sleep(0.1)
+                    self.iMU_client.send_message("action=r_xl|")
+                    if await self.is_data_ready(i):
+                        r_left_revs, r_right_revs = self.get_current_position()
+                        self.telemetry_data_ready = False
+                        self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
+                        self.dataset.flush()
+                        self.logger.info(f"Wrote datapoint into the file: i: {i}")
             self.logger.info("pitch data raksutettu")
             self.dataset.close()
         except:
