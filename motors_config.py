@@ -28,7 +28,7 @@ class MotorConfig:
     PFEEDBACK_POSITION = 378
     IPEAK = 5108
     RECENT_FAULT_ADDRESS: int = 846 #Coms bit 10 -> 2^10
-    VFEEDBACK_VELOCITY: int = 361
+    VFEEDBACK_VELOCITY: int = 344
     SYSTEM_COMMAND: int = 4001
 
     ### Telemetry registers (high)

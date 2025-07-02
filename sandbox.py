@@ -6,7 +6,7 @@ from websocket_client import WebSocketClient
 import asyncio
 import utils as utils
 from motors_config import MotorConfig
-from utils import extract_part, is_nth_bit_on
+from utils import extract_part, is_nth_bit_on, registers_convertion
 from test import bit_high_low
 from IO_codes import OEG_MODE, IEG_MODE, IEG_MOTION, FAULTS, OPTIONS,OEG_MOTION
 from tcp_socket_client import TCPSocketClient
@@ -37,6 +37,23 @@ class Sandbox():
     wsclient = None
     telemetry_data_ready=False
     
+    async def stopped(self, n=20) -> bool:
+        try:
+            max_polling_duration=n
+            elapsed_time=0
+            start_time = time()
+            while max_polling_duration >= elapsed_time:
+                registers = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
+                velocity = registers_convertion(registers,format="8.24", signed=True)
+                velocity *= 60
+                print(f"Velocity {velocity}")
+                elapsed_time = time() - start_time
+                return True
+            self.logger.error("Motors did not stop in the given time frame")
+        except Exception as e:
+            print(e)
+            return False
+
     async def in_position(self,i, n=20) -> bool:
         """Polls for n amount of time to check 
         if the motors are in position or not"""
@@ -484,6 +501,12 @@ class Sandbox():
                     # if await self.is_data_ready(i):
                     #     r_left_revs, r_right_revs = self.get_current_position()
                     #     self.telemetry_data_ready = False
+            if await self.in_position(i):
+                self.iMU_client.send_message("action=r_xl|")
+                await asyncio.sleep(0.5)
+                if await self.is_data_ready(i):
+                    r_left_revs, r_right_revs = self.get_current_position()
+                    self.telemetry_data_ready = False
 
                     #     self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
                     #     self.dataset.flush()
@@ -641,7 +664,8 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
+    sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
     # asyncio.run(readValues.main())
