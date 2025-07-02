@@ -43,8 +43,8 @@ class Sandbox():
             elapsed_time=0
             start_time = time()
             while max_polling_duration >= elapsed_time:
-                registers = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
-                velocity = abs(registers_convertion(registers,format="8.24", signed=True))
+                response = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
+                velocity = abs(registers_convertion(registers=response.registers,format="8.24", signed=True))
                 velocity *= 60
                 print(f"Velocity {velocity}")
                 if velocity < 1:
@@ -658,8 +658,8 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    # asyncio.run(sandbox.asd())
-    sandbox.run(sandbox.stopped())
+    asyncio.run(sandbox.asd())
+    # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
     # asyncio.run(readValues.main())
