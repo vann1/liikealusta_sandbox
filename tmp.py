@@ -1,8 +1,7 @@
-def filter_accelerometer(new_pitch, new_roll, prev_pitch=None, prev_roll=None):
-    if prev_pitch is None:
-        return new_pitch, new_roll
-    else:
-        alpha = 0.1
-        filtered_pitch = alpha * new_pitch + (1 - alpha) * prev_pitch
-        filtered_roll = alpha * new_roll + (1 - alpha) * prev_roll
-        return filtered_pitch, filtered_roll
+import random
+random.seed(62)
+with open("moi2.txt", "a") as f:
+    for i in range(100):
+        random_roll = round(random.uniform(-16, 16), 2)
+        random_pitch = round(random.uniform(-8.5, 8.5), 2)
+        f.write(f"{random_pitch}|{random_roll}\n")

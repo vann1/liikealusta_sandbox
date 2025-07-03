@@ -72,7 +72,6 @@ class Benchmark():
             pass
             # self.wo_lpf_file = open(self.wo_lpf_file_path, "w")
             # self.lpf_file = open(self.lpf_file_path, "w")
-
     
     def compare_diffs(self):
         # First file processing
