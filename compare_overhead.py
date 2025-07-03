@@ -21,13 +21,19 @@ if __name__ == "__main__":
     file2.close()
 
     diffs = []
+    roll_diffs = []
     diff_sum = 0
+    roll_diff_sum = 0
     for i in range(100):
         diff = abs(file1_pitches[i] - file2_pitches[i])
+        roll_diff = abs(file1_rolls[i] - file2_rolls[i])
         diff_sum += diff
+        roll_diff_sum += roll_diff
         diffs.append(diff)
+        roll_diffs.append(roll_diff)
     
     avg_diff = diff_sum/len(diffs)
+    avg_roll_diff = roll_diff_sum / len(roll_diffs)
     print(f"avg diff: {avg_diff}")
     
 
