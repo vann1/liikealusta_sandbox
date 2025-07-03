@@ -500,7 +500,36 @@ class Sandbox():
         finally:
             registers_file.close()
 
+    async def test_new_rotate_equations(self):
+        step_count = 32
+        start_value = -16
+        end_value = 16
+        range = end_value-start_value
+        step_size = 1
+        step_change = step_size/(step_count-1)
 
+        try:
+            for i in range(step_count):
+                commanded_roll = start_value - (i*step_change)
+                commanded_pitch = 0
+                await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
+                await asyncio.sleep(0.5)
+
+                if await self.stopped():
+                    await asyncio.sleep(0.1)
+                    self.iMU_client.send_message("action=r_xl|")
+                    if await self.is_data_ready(i):
+                        # r_left_revs, r_right_revs = self.get_current_position()
+                        self.telemetry_data_ready = False
+                        pitch_diff = abs(self.pitch - commanded_pitch)
+                        roll_diff = abs(self.roll - commanded_roll)
+                        self.test3.write(f"{pitch_diff},{roll_diff}\n")
+                        self.test3.flush()
+                        self.logger.info(f"Wrote datapoint into the file: i: {i}")
+            self.logger.info("pitch data raksutettu")
+            self.test3.close()
+        except:
+            raise Exception
 
     async def make_sample_rotations(self):
         n = 10
@@ -523,7 +552,6 @@ class Sandbox():
                         self.test2.write(f"{pitch_diff},{roll_diff}\n")
                         self.test2.flush()
                         self.logger.info(f"Wrote datapoint into the file: i: {i}")
-            self.logger.info("pitch data raksutettu")
             self.test2.close()
         except:
             raise Exception
@@ -584,6 +612,7 @@ class Sandbox():
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
             self.test1=open("test1.txt", "a")
             self.test2=open("test2.txt", "a")
+            self.test3=open("test3.txt", "a")
             self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             await self.wsclient.connect()
@@ -676,7 +705,8 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.asd())
+    asyncio.run(sandbox.test_new_rotate_equations())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
