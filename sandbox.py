@@ -501,7 +501,7 @@ class Sandbox():
                         self.telemetry_data_ready = False
                         pitch_diff = abs(self.pitch - random_pitch)
                         roll_diff = abs(self.roll - random_roll)
-                        self.validate_equation.write(f"{pitch_diff},{roll_diff}\n")
+                        self.test1.write(f"{pitch_diff},{roll_diff}\n")
                         self.dataset.flush()
                         self.logger.info(f"Wrote datapoint into the file: i: {i}")
             self.logger.info("pitch data raksutettu")
@@ -564,7 +564,8 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.validate_equation=open("validate.txt", "a")
+            self.test1=open("test1.txt", "w")
+            self.test2=open("test2.txt", "w")
             self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             await self.wsclient.connect()
