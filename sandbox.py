@@ -509,7 +509,7 @@ class Sandbox():
             for i in range(100):
                 random_roll = round(random.uniform(-16, 16), 2)
                 random_pitch = round(random.uniform(-8.5, 8.5), 2)
-                # await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
+                await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
                 await asyncio.sleep(0.5)
 
                 if await self.stopped():
@@ -520,11 +520,11 @@ class Sandbox():
                         self.telemetry_data_ready = False
                         pitch_diff = abs(self.pitch - random_pitch)
                         roll_diff = abs(self.roll - random_roll)
-                        self.test1.write(f"{pitch_diff},{roll_diff}\n")
-                        self.dataset.flush()
+                        self.test2.write(f"{pitch_diff},{roll_diff}\n")
+                        self.test2.flush()
                         self.logger.info(f"Wrote datapoint into the file: i: {i}")
             self.logger.info("pitch data raksutettu")
-            self.dataset.close()
+            self.test2.close()
         except:
             raise Exception
     
@@ -582,8 +582,8 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.test1=open("test1.txt", "w")
-            self.test2=open("test2.txt", "w")
+            self.test1=open("test1.txt", "a")
+            self.test2=open("test2.txt", "a")
             self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             await self.wsclient.connect()
