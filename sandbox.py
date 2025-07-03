@@ -78,7 +78,6 @@ class Sandbox():
         except Exception as e:
             self.logger.error(f"wtf: {e}")
 
-
     async def on_message(self,msg):
         event = extract_part("event=",msg)
         message = extract_part("message=",msg)
@@ -486,12 +485,9 @@ class Sandbox():
 
     async def make_sample_rotations(self):
         n = 10
-        step_change = 16/n
-        max_pitch = 8
-        max_roll = 16
-        random.seed(61)
+        random.seed(62)
         try:
-            for i in range(1000):
+            for i in range(100):
                 random_roll = round(random.uniform(-16, 16), 2)
                 random_pitch = round(random.uniform(-8.5, 8.5), 2)
                 await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
@@ -501,16 +497,18 @@ class Sandbox():
                     await asyncio.sleep(0.1)
                     self.iMU_client.send_message("action=r_xl|")
                     if await self.is_data_ready(i):
-                        r_left_revs, r_right_revs = self.get_current_position()
+                        # r_left_revs, r_right_revs = self.get_current_position()
                         self.telemetry_data_ready = False
-                        self.dataset.write(f"{self.pitch},{self.roll},{r_left_revs},{r_right_revs}\n")
+                        pitch_diff = abs(self.pitch - random_pitch)
+                        roll_diff = abs(self.roll - random_roll)
+                        self.validate_equation.write(f"{pitch_diff},{roll_diff}\n")
                         self.dataset.flush()
                         self.logger.info(f"Wrote datapoint into the file: i: {i}")
             self.logger.info("pitch data raksutettu")
             self.dataset.close()
         except:
             raise Exception
-        
+    
     def get_current_position(self):
         try:
             response_left = self.client_left.read_holding_registers(address=378, count=2)
@@ -566,6 +564,7 @@ class Sandbox():
             self.client_right.connect()
             self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
+            self.validate_equation=open("validate.txt", "a")
             self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             await self.wsclient.connect()

@@ -13,6 +13,8 @@ class Benchmark():
         self.lpf_file = None
         self.wo_lpf_file = None
         self.compare = compare
+        self.alpha = .1
+        self.first_reading = True
 
     telemetry_data_processed=True
 
@@ -36,22 +38,35 @@ class Benchmark():
 
         return pitch_diff_avg, roll_diff_avg
 
+    def update(self, new_pitch, new_roll):
+        if self.first_reading:
+            self.filtered_pitch = new_pitch
+            self.filtered_roll = new_roll
+            self.first_reading = False
+        else:
+            self.filtered_pitch = self.alpha * new_pitch + (1 - self.alpha) * self.filtered_pitch
+            self.filtered_roll = self.alpha * new_roll + (1 - self.alpha) * self.filtered_roll
+        
+        return self.filtered_pitch, self.filtered_roll
 
     def recive_telemetry_data(self,message):
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
+        roll, pitch = self.update(roll, pitch)
         self.test_file.write(f"{pitch}|{roll}\n")
         self.test_file.flush()
+        sleep(.1)
+        print("got here?")
         self.telemetry_data_processed=True
 
     def init(self):
         self.results_file = open(self.results_file, "a")
         if self.compare:
             self.test_file = open(self.test_file_path, "r")
-            self.wo_lpf_file = open(self.wo_lpf_file_path, "r")
-            self.lpf_file = open(self.wo_lpf_file_path, "r")
+            # self.wo_lpf_file = open(self.wo_lpf_file_path, "r")
+            # self.lpf_file = open(self.wo_lpf_file_path, "r")
         else:
             self.test_file = open(self.test_file_path, "w")
             pass
@@ -122,8 +137,8 @@ class Benchmark():
         # pitch_diff_avg, roll_diff_avg = self.calculate_diff_avgs(roll_diffs=roll_diffs, pitch_diffs=pitch_diffs)
         # self.results_file.write(f"{pitch_diff_avg}|{roll_diff_avg}\n")
         
-        self.lpf_file.close()
-        self.wo_lpf_file.close()
+        # self.lpf_file.close()
+        # self.wo_lpf_file.close()
         self.results_file.close()
 
 if __name__ == "__main__":
