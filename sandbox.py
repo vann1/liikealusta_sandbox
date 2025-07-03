@@ -36,6 +36,23 @@ class Sandbox():
     logger = None
     wsclient = None
     telemetry_data_ready=False
+
+    def __init__(self):
+        self.first_reading=True
+        self.alpha=0.1
+        self.filtered_pitch = None
+        self.filtered_roll =None
+
+    def update(self, new_pitch, new_roll):
+        if self.first_reading:
+            self.filtered_pitch = new_pitch
+            self.filtered_roll = new_roll
+            self.first_reading = False
+        else:
+            self.filtered_pitch = self.alpha * new_pitch + (1 - self.alpha) * self.filtered_pitch
+            self.filtered_roll = self.alpha * new_roll + (1 - self.alpha) * self.filtered_roll
+        
+        return self.filtered_pitch, self.filtered_roll
     
     async def stopped(self, n=20) -> bool:
         try:
@@ -483,6 +500,8 @@ class Sandbox():
         finally:
             registers_file.close()
 
+
+
     async def make_sample_rotations(self):
         n = 10
         random.seed(62)
@@ -490,7 +509,7 @@ class Sandbox():
             for i in range(100):
                 random_roll = round(random.uniform(-16, 16), 2)
                 random_pitch = round(random.uniform(-8.5, 8.5), 2)
-                await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
+                # await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
                 await asyncio.sleep(0.5)
 
                 if await self.stopped():
@@ -499,10 +518,10 @@ class Sandbox():
                     if await self.is_data_ready(i):
                         # r_left_revs, r_right_revs = self.get_current_position()
                         self.telemetry_data_ready = False
-                        pitch_diff = abs(self.pitch - random_pitch)
-                        roll_diff = abs(self.roll - random_roll)
+                        pitch_diff = abs(self.pitch - 0)
+                        roll_diff = abs(self.roll - 0)
                         self.validate_equation.write(f"{pitch_diff},{roll_diff}\n")
-                        self.dataset.flush()
+                        self.validate_equation.flush()
                         self.logger.info(f"Wrote datapoint into the file: i: {i}")
             self.logger.info("pitch data raksutettu")
             self.dataset.close()
@@ -550,11 +569,10 @@ class Sandbox():
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
-        pitch -= 0.61
-        roll += 0.53
+        pitch -= 0.29276477258959593
+        roll += 1.2157825069479884
         print(pitch,",",roll) 
-        self.pitch = pitch
-        self.roll = roll
+        self.pitch, self.roll = self.update(pitch, roll)
         self.telemetry_data_ready = True     
 
     async def init(self, files=True):
