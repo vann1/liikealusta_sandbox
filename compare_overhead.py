@@ -35,7 +35,7 @@ if __name__ == "__main__":
     avg_diff = diff_sum/len(diffs)
     avg_roll_diff = roll_diff_sum / len(roll_diffs)
     print(f"avg pitch diff: {avg_diff} ")
-    print(f"avg roll diff: {avg_diff} ")
+    print(f"avg roll diff: {avg_roll_diff} ")
     
 
 
