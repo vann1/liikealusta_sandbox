@@ -533,6 +533,39 @@ class Sandbox():
         except Exception as e:
            print(e)
 
+    async def test_new_rotate_equations_pitch(self):
+        await self.init()
+        step_count = 16
+        start_value = 9
+        end_value = -9
+        val_range = end_value-start_value
+        step_size = 1
+        step_change = val_range/(step_count-1)
+
+        try:
+            for i in range(step_count):
+                commanded_roll = 0
+                print(f"commanded  roll {commanded_roll}")
+                commanded_pitch = start_value - (i*step_change)
+                await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
+                await asyncio.sleep(0.5)
+
+                if await self.stopped():
+                    await asyncio.sleep(0.5)
+                    self.iMU_client.send_message("action=r_xl|")
+                    if await self.is_data_ready(i):
+                        # r_left_revs, r_right_revs = self.get_current_position()
+                        self.telemetry_data_ready = False
+                        pitch_diff = abs(self.pitch - commanded_pitch)
+                        roll_diff = (self.roll + commanded_roll)
+                        self.test3.write(f"{pitch_diff},{roll_diff}\n")
+                        self.test3.flush()
+                        self.logger.info(f"Wrote datapoint into the file: i: {i}")
+            self.logger.info("pitch data raksutettu")
+            self.test3.close()
+        except Exception as e:
+           print(e)
+
     async def make_sample_rotations(self):
         n = 10
         random.seed(62)
@@ -709,7 +742,7 @@ class Sandbox():
 if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
-    asyncio.run(sandbox.test_new_rotate_equations())
+    asyncio.run(sandbox.test_new_rotate_equations_pitch())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
