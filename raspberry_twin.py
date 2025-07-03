@@ -29,9 +29,9 @@ class CrazyDemo():
         roll = float(roll)
         pitch, roll = self.update(new_pitch=pitch, new_roll=roll)
 
-        pitch /= 5
-        roll /= 3.5
-        self.mpi.set_angles(pitch,roll)
+        # pitch /= 5
+        # roll /= 3.5
+        # self.mpi.set_angles(pitch,roll)
         print(pitch,",",roll)
         self.telemetry_data_processed=True
 

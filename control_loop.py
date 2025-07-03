@@ -30,7 +30,7 @@ class ControlLoop():
                 await asyncio.sleep(0.07)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
-                roll = values[3] * (-1)
+                roll = values[3]
                 button_pressed = values[18]
 
                 if button_pressed == 1.0:
