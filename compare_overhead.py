@@ -25,8 +25,8 @@ if __name__ == "__main__":
     diff_sum = 0
     roll_diff_sum = 0
     for i in range(100):
-        diff = abs(float(file1_pitches[i] - file2_pitches[i]))
-        roll_diff = abs(float(file1_rolls[i] - file2_rolls[i]))
+        diff = abs(float(file1_pitches[i]) - float(file2_pitches[i]))
+        roll_diff = abs(float(file1_rolls[i]) - float(file2_rolls[i]))
         diff_sum += diff
         roll_diff_sum += roll_diff#
         diffs.append(diff)
