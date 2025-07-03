@@ -46,7 +46,7 @@ class Sandbox():
                 response = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
                 velocity = abs(registers_convertion(registers=response.registers,format="8.24", signed=True))
                 velocity *= 60
-                print(f"Velocity {velocity}")
+                await asyncio.sleep(0.1)
                 if velocity < 1:
                     return True
                 elapsed_time = time() - start_time
@@ -489,7 +489,7 @@ class Sandbox():
         step_change = 16/n
         max_pitch = 8
         max_roll = 16
-        random.seed(60)
+        random.seed(61)
         try:
             for i in range(1000):
                 random_roll = round(random.uniform(-16, 16), 2)
@@ -497,7 +497,7 @@ class Sandbox():
                 await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
                 await asyncio.sleep(0.5)
 
-                if await self.stopped(i):
+                if await self.stopped():
                     await asyncio.sleep(0.1)
                     self.iMU_client.send_message("action=r_xl|")
                     if await self.is_data_ready(i):
