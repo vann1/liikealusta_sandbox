@@ -5,19 +5,35 @@ from motionplatform_interface import MotionPlatformInterface
 
 class CrazyDemo():
     telemetry_data_processed=True
+    def __init__(self):
+        self.prev_pitch = None
+        self.prev_roll = None
+        self.first_reading = True
+        self.alpha = 0.1
+
+    def update(self, new_pitch, new_roll):
+        if self.first_reading:
+            self.filtered_pitch = new_pitch
+            self.filtered_roll = new_roll
+            self.first_reading = False
+        else:
+            self.filtered_pitch = self.alpha * new_pitch + (1 - self.alpha) * self.filtered_pitch
+            self.filtered_roll = self.alpha * new_roll + (1 - self.alpha) * self.filtered_roll
+        
+        return self.filtered_pitch, self.filtered_roll
+
     def recive_telemetry_data(self,message):
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
+        pitch, roll = self.update(new_pitch=pitch, new_roll=roll)
 
         pitch /= 5
         roll /= 3.5
         self.mpi.set_angles(pitch,roll)
         print(pitch,",",roll)
         self.telemetry_data_processed=True
-        
-
 
     def init(self):
         self.mpi = MotionPlatformInterface()
