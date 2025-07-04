@@ -538,7 +538,7 @@ class Sandbox():
         step_count = 16
         start_value = 9
         end_value = -9
-        val_range = end_value-start_value
+        val_range = abs(end_value-start_value)
         step_size = 1
         step_change = val_range/(step_count-1)
 
@@ -567,31 +567,40 @@ class Sandbox():
            print(e)
 
     async def make_sample_rotations(self):
-        n = 10
-        random.seed(63)
         try:
-            for i in range(1000):
-                random_roll = round(random.uniform(-16, 16), 2)
-                random_pitch = round(random.uniform(-8.5, 8.5), 2)
-                await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
-                await asyncio.sleep(0.5)
+            step_count_pitch = 16
+            start_value_pitch = 9
+            end_value_pitch = -9
+            val_range_pitch = abs(end_value_pitch-start_value_pitch)
+            step_change_pitch = val_range_pitch/(step_count_pitch-1)
+            
+            step_count_roll = 32
+            start_value_roll = 17
+            end_value_roll = -17
+            val_range_roll = abs(end_value_roll-start_value_roll)
+            step_change_roll = val_range_roll/(step_count_roll-1)
+            for j in range(10):
+                commanded_pitch = 0
+                commanded_pitch = start_value_pitch - (j*step_change_pitch)
+                for i in range(1000):
+                    commanded_roll = 0
+                    commanded_roll = start_value_roll - (i*step_change_roll)
+                    await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
+                    await asyncio.sleep(0.5)
 
-                if await self.stopped():
-                    await asyncio.sleep(0.1)
-                    self.first_reading = True
-                    for i in range(100):
-                        self.iMU_client.send_message("action=r_xl|")
-                        await asyncio.sleep((1/100))
-                    if await self.is_data_ready(i):
-                        self.increment = 0
-                        # r_left_revs, r_right_revs = self.get_current_position()
-                        self.telemetry_data_ready = False
-                        pitch_diff = abs(self.pitch - random_pitch)
-                        roll_diff = abs(self.roll - random_roll)
-                        self.test2.write(f"{pitch_diff},{roll_diff}\n")
-                        self.test2.flush()
-                        self.logger.info(f"Wrote datapoint into the file: i: {i}")
-            self.test2.close()
+                    if await self.stopped():
+                        await asyncio.sleep(0.1)
+                        self.first_reading = True
+                        for k in range(100):
+                            self.iMU_client.send_message("action=r_xl|")
+                            await asyncio.sleep((1/100))
+                        if await self.is_data_ready(i):
+                            self.increment = 0
+                            self.telemetry_data_ready = False
+                            self.test2.write(f"{self.pitch},{self.roll}\n")
+                            self.test2.flush()
+                            self.logger.info(f"Wrote datapoint into the file: i: {i}")
+                self.test2.close()
         except:
             raise Exception
     
@@ -639,7 +648,6 @@ class Sandbox():
         roll = float(roll)
         pitch -= 0.29276477258959593
         roll += 1.2157825069479884
-        print(pitch,",",roll) 
         self.pitch, self.roll = self.update(pitch, roll)
         if self.increment == 99:
             self.telemetry_data_ready = True     
@@ -746,8 +754,8 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    # asyncio.run(sandbox.asd())
-    asyncio.run(sandbox.test_new_rotate_equations_pitch())
+    asyncio.run(sandbox.asd())
+    # asyncio.run(sandbox.test_new_rotate_equations_pitch())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
