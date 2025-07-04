@@ -27,6 +27,8 @@ class CrazyDemo():
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
+        roll += 0.9537832219798259
+        pitch -=  0.4166189774422365
         pitch, roll = self.update(new_pitch=pitch, new_roll=roll)
 
         # pitch /= 5
@@ -41,7 +43,7 @@ class CrazyDemo():
 
 if __name__ == "__main__":
     crazyDemo = CrazyDemo()
-    crazyDemo.init() # Initializes mpi class
+    # crazyDemo.init() # Initializes mpi class
     tcp_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=crazyDemo.recive_telemetry_data)
     tcp_client.connect()
 
