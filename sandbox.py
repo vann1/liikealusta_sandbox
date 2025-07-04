@@ -647,8 +647,8 @@ class Sandbox():
         pitch,roll = message.split(",")
         pitch = float(pitch)
         roll = float(roll)
-        pitch -= 0.29276477258959593
-        roll += 1.2157825069479884
+        roll += 0.9537832219798259
+        pitch -=  0.4166189774422365
         self.pitch, self.roll = self.update(pitch, roll)
         if self.increment == 99:
             self.telemetry_data_ready = True     
