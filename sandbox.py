@@ -538,15 +538,15 @@ class Sandbox():
         step_count = 16
         start_value = 9
         end_value = -9
-        val_range = end_value-start_value
+        val_range = abs(end_value-start_value)
         step_size = 1
         step_change = val_range/(step_count-1)
 
         try:
             for i in range(step_count):
                 commanded_roll = 0
-                print(f"commanded  roll {commanded_roll}")
                 commanded_pitch = start_value - (i*step_change)
+                print(f"commanded  pitch {commanded_pitch}")
                 await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
                 await asyncio.sleep(0.5)
 
@@ -742,7 +742,7 @@ class Sandbox():
 if __name__ == "__main__":
     sandbox = Sandbox()
     # asyncio.run(sandbox.asd())
-    asyncio.run(sandbox.test_new_rotate_equations_pitch())
+    asyncio.run(sandbox.test_new_rotate_equations())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
     # asyncio.run(sandbox.crawl())
