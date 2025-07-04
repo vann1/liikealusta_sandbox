@@ -9,33 +9,41 @@ if __name__ == "__main__":
 
     for line in file1.readlines():
         data = line.strip().split(",")
-        file1_pitches.append(data[0])
-        file1_rolls.append(data[1])
+        file1_pitches.append(float(data[0]))
+        file1_rolls.append(float(data[1]))
     
     for line in file2.readlines():
         data = line.strip().split(",")
-        file2_pitches.append(data[0])
-        file2_rolls.append(data[1])
+        file2_pitches.append(float(data[0]))
+        file2_rolls.append(float(data[1]))
     
     file1.close()
     file2.close()
 
-    diffs = []
-    roll_diffs = []
-    diff_sum = 0
-    roll_diff_sum = 0
+    roll1sum=0
+    roll2sum=0
+    pitch1sum=0
+    pitch2sum=0
+
     for i in range(100):
-        diff = abs(float(file1_pitches[i]) - float(file2_pitches[i]))
-        roll_diff = abs(float(file1_rolls[i]) - float(file2_rolls[i]))
-        diff_sum += diff
-        roll_diff_sum += roll_diff#
-        diffs.append(diff)
-        roll_diffs.append(roll_diff)
-    
-    avg_diff = diff_sum/len(diffs)
-    avg_roll_diff = roll_diff_sum / len(roll_diffs)
-    print(f"avg pitch diff: {avg_diff} ")
-    print(f"avg roll diff: {avg_roll_diff} ")
+        file1_roll = file1_rolls[i]
+        file2_roll = file2_rolls[i]
+        file1_pitch = file1_pitches[i]
+        file2_pitch = file2_pitches[i]
+        roll1sum += file1_roll
+        roll2sum += file2_roll
+        pitch1sum += file1_pitch
+        pitch2sum += file2_pitch
+
+    roll_heitto1 = roll1sum/100
+    roll_heitto2 = roll2sum / 100
+    pitch_heitto1 = pitch1sum/100
+    pitch_heitto2 = pitch2sum / 100
+    print(f"roll heitto 1: {roll_heitto1} ")
+    print(f"roll heitto 2: {roll_heitto2} ")
+    print(f"pitch heitto 1: {pitch_heitto1} ")
+    print(f"pitch heitto 2: {pitch_heitto2} ")
+
     
 
 
