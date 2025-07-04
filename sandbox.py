@@ -575,15 +575,15 @@ class Sandbox():
             val_range_pitch = abs(end_value_pitch-start_value_pitch)
             step_change_pitch = val_range_pitch/(step_count_pitch-1)
             
-            step_count_roll = 32
+            step_count_roll = 100
             start_value_roll = 17
             end_value_roll = -17
             val_range_roll = abs(end_value_roll-start_value_roll)
             step_change_roll = val_range_roll/(step_count_roll-1)
-            for j in range(10):
+            for j in range(step_count_pitch):
                 commanded_pitch = 0
                 commanded_pitch = start_value_pitch - (j*step_change_pitch)
-                for i in range(1000):
+                for i in range(step_count_roll):
                     commanded_roll = 0
                     commanded_roll = start_value_roll - (i*step_change_roll)
                     await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
