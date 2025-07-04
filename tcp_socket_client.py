@@ -63,7 +63,6 @@ class TCPSocketClient():
                     data = str(msg).encode("utf-8")
                     
                 self.client_socket.send(data)
-                self.logger.info(f"Sent {len(data)} bytes")
         except Exception as e:
             self.logger.error(f"Failed to send a message: {e}") 
 

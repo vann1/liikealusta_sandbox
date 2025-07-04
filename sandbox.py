@@ -36,12 +36,16 @@ class Sandbox():
     logger = None
     wsclient = None
     telemetry_data_ready=False
+    
 
     def __init__(self):
         self.first_reading=True
         self.alpha=0.1
         self.filtered_pitch = None
         self.filtered_roll =None
+        self.increment = 0
+        self.telemetry_data_processed = False
+        self.telemetry_data_sample_count = 11
 
     def update(self, new_pitch, new_roll):
         if self.first_reading:
@@ -520,7 +524,7 @@ class Sandbox():
                 if await self.stopped():
                     await asyncio.sleep(0.5)
                     self.iMU_client.send_message("action=r_xl|")
-                    if await self.is_data_ready(i):
+                    if await self.is_all_data_ready(i):
                         # r_left_revs, r_right_revs = self.get_current_position()
                         self.telemetry_data_ready = False
                         pitch_diff = abs(self.pitch - commanded_pitch)
@@ -554,7 +558,7 @@ class Sandbox():
                 if await self.stopped():
                     await asyncio.sleep(0.5)
                     self.iMU_client.send_message("action=r_xl|")
-                    if await self.is_data_ready(i):
+                    if await self.is_all_data_ready(i):
                         # r_left_revs, r_right_revs = self.get_current_position()
                         self.telemetry_data_ready = False
                         pitch_diff = abs(self.pitch - commanded_pitch)
@@ -586,24 +590,29 @@ class Sandbox():
                 for i in range(step_count_roll):
                     commanded_roll = 0
                     commanded_roll = start_value_roll - (i*step_change_roll)
+                    print(f"Pitch cycle nr: {i}")
                     await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
                     await asyncio.sleep(0.5)
 
                     if await self.stopped():
                         await asyncio.sleep(0.1)
                         self.first_reading = True
-                        for k in range(100):
+                        for k in range(self.telemetry_data_sample_count):
                             self.iMU_client.send_message("action=r_xl|")
-                            await asyncio.sleep((1/100))
-                        if await self.is_data_ready(i):
+                            await self.is_telemerty_data_ready()
+                            self.telemetry_data_processed = False
+                        if await self.is_all_data_ready(i):
+                            left, right = self.get_current_position()
                             self.increment = 0
                             self.telemetry_data_ready = False
-                            self.test2.write(f"{self.pitch},{self.roll}\n")
+                            self.test2.write(f"{self.pitch},{self.roll},{left},{right}\n")
                             self.test2.flush()
                             self.logger.info(f"Wrote datapoint into the file: i: {i}")
-                self.test2.close()
-        except:
+            self.test2.close()
+        except Exception as e:
+            print(e)
             raise Exception
+        
     
     def get_current_position(self):
         try:
@@ -615,7 +624,25 @@ class Sandbox():
         except:
             return ("N/A","N/A")
     
-    async def is_data_ready(self,i, n=20) -> bool:
+    async def is_telemerty_data_ready(self, n=20) -> bool:
+        try:
+            """Polls for n amount of time to check 
+            if the telemetry data have been recevied"""
+            max_polling_duration=n
+            elapsed_time = 0
+            start_time = time()
+            while max_polling_duration >= elapsed_time:
+                if self.telemetry_data_processed: 
+                    return True
+                else:
+                    await asyncio.sleep(0.1)
+                elapsed_time = time() - start_time
+            self.logger.error("Failed to get data from raspberry's imu sensor")
+            return False
+        except Exception as e:
+            print(e) 
+    
+    async def is_all_data_ready(self,i, n=20) -> bool:
         try:
             """Polls for n amount of time to check 
             if the telemetry data have been recevied"""
@@ -650,7 +677,10 @@ class Sandbox():
         roll += 0.9537832219798259
         pitch -=  0.4166189774422365
         self.pitch, self.roll = self.update(pitch, roll)
-        if self.increment == 99:
+        print(f"Telemetry:{pitch}, {roll} - Filtered: {self.pitch}, {self.roll}")
+        self.telemetry_data_processed = True
+
+        if self.increment == self.telemetry_data_sample_count:
             self.telemetry_data_ready = True     
 
     async def init(self, files=True):
