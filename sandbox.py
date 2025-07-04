@@ -504,9 +504,9 @@ class Sandbox():
 
     async def make_sample_rotations(self):
         n = 10
-        random.seed(62)
+        random.seed(63)
         try:
-            for i in range(100):
+            for i in range(1000):
                 random_roll = round(random.uniform(-16, 16), 2)
                 random_pitch = round(random.uniform(-8.5, 8.5), 2)
                 await self.wsclient.send(f"action=rotate|pitch={random_pitch}|roll={random_roll}|")
@@ -514,8 +514,12 @@ class Sandbox():
 
                 if await self.stopped():
                     await asyncio.sleep(0.1)
-                    self.iMU_client.send_message("action=r_xl|")
+                    self.first_reading = True
+                    for i in range(100):
+                        self.iMU_client.send_message("action=r_xl|")
+                        await asyncio.sleep((1/100))
                     if await self.is_data_ready(i):
+                        self.increment = 0
                         # r_left_revs, r_right_revs = self.get_current_position()
                         self.telemetry_data_ready = False
                         pitch_diff = abs(self.pitch - random_pitch)
@@ -565,6 +569,7 @@ class Sandbox():
         self.client_right.write_register(address=config.IEG_MODE, value=0)
 
     def recive_telemetry_data(self,message):
+        self.increment += 1
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
         pitch = float(pitch)
@@ -573,7 +578,8 @@ class Sandbox():
         roll += 1.2157825069479884
         print(pitch,",",roll) 
         self.pitch, self.roll = self.update(pitch, roll)
-        self.telemetry_data_ready = True     
+        if self.increment == 99:
+            self.telemetry_data_ready = True     
 
     async def init(self, files=True):
         try:
