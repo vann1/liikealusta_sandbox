@@ -585,7 +585,7 @@ class Sandbox():
                 self.right_modbus_value = self.max_modbus_value - self.step_size * i
                 for j in range(self.step_count + 1):
                     self.left_modbus_value = self.max_modbus_value - self.step_size * j
-                    await self.wsclient.send(f"action=rotate|modbus_left={self.left_modbus_value}|modbus_right={self.right_modbus_value}|")
+                    await self.wsclient.send(f"action=modbusvalues|modbus_left={self.left_modbus_value}|modbus_right={self.right_modbus_value}|")
                     await asyncio.sleep(0.5)
 
                     if await self.stopped():
