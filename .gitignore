@@ -4,3 +4,4 @@ temp.txt
 *.txt
 registers.txt
 *.png
+!real*.txt

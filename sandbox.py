@@ -573,9 +573,9 @@ class Sandbox():
 
     async def modbus_cntrl_rotate(self):
         try:
+            self.max_modbus_value = 10000
             self.step_count = 30
             self.step_size = self.max_modbus_value / self.step_count
-            self.max_modbus_value = 10000
             
             self.left_modbus_value = self.max_modbus_value
             self.right_modbus_value = self.max_modbus_value
@@ -591,7 +591,7 @@ class Sandbox():
                     if await self.stopped():
                         await asyncio.sleep(0.1)
                         self.first_reading = True
-                        for k in range(100):
+                        for k in range(self.telemetry_data_sample_count):
                             self.iMU_client.send_message("action=r_xl|")
                             await self.is_telemerty_data_ready()
                             self.telemetry_data_processed = False
@@ -602,9 +602,7 @@ class Sandbox():
                             self.test2.write(f"{self.pitch},{self.roll},{response_left},{response_right}\n")
                             self.test2.flush()
                             self.logger.info(f"Wrote datapoint into the file: j: {j}")
-                self.test2.close()
-                    
-                
+            self.test2.close() 
         except Exception as e:
             print(e)
 
@@ -680,7 +678,7 @@ class Sandbox():
         except Exception as e:
             print(e) 
     
-    async def is_all_data_ready(self,i, n=20) -> bool:
+    async def is_all_data_ready(self,j, n=20) -> bool:
         try:
             """Polls for n amount of time to check 
             if the telemetry data have been recevied"""
@@ -747,7 +745,8 @@ class Sandbox():
         try:
             await self.init(files=False)
             
-            await self.make_sample_rotations()
+            # await self.make_sample_rotations()
+            await self.modbus_cntrl_rotate()
         except Exception as e:
             print(e)
         finally:
