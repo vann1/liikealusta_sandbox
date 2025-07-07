@@ -593,8 +593,9 @@ class Sandbox():
                         self.first_reading = True
                         for k in range(100):
                             self.iMU_client.send_message("action=r_xl|")
-                            await asyncio.sleep((1/100))
-                        if await self.is_data_ready(j):
+                            await self.is_telemerty_data_ready()
+                            self.telemetry_data_processed = False
+                        if await self.is_all_data_ready(j):
                             response_left,response_right = self.get_current_position()
                             self.increment = 0
                             self.telemetry_data_ready = False
