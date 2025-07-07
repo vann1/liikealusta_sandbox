@@ -571,6 +571,43 @@ class Sandbox():
         except Exception as e:
            print(e)
 
+    async def modbus_cntrl_rotate(self):
+        try:
+            self.step_count = 30
+            self.step_size = self.max_modbus_value / self.step_count
+            self.max_modbus_value = 10000
+            
+            self.left_modbus_value = self.max_modbus_value
+            self.right_modbus_value = self.max_modbus_value
+             
+            for i in range(self.step_count + 1):
+                self.left_modbus_value = self.max_modbus_value
+                self.right_modbus_value = self.max_modbus_value - self.step_size * i
+                for j in range(self.step_count + 1):
+                    self.left_modbus_value = self.max_modbus_value - self.step_size * j
+                    await self.wsclient.send(f"action=rotate|modbus_left={self.left_modbus_value}|modbus_right={self.right_modbus_value}|")
+                    await asyncio.sleep(0.5)
+
+                    if await self.stopped():
+                        await asyncio.sleep(0.1)
+                        self.first_reading = True
+                        for k in range(100):
+                            self.iMU_client.send_message("action=r_xl|")
+                            await self.is_telemerty_data_ready()
+                            self.telemetry_data_processed = False
+                        if await self.is_all_data_ready(j):
+                            response_left,response_right = self.get_current_position()
+                            self.increment = 0
+                            self.telemetry_data_ready = False
+                            self.test2.write(f"{self.pitch},{self.roll},{response_left},{response_right}\n")
+                            self.test2.flush()
+                            self.logger.info(f"Wrote datapoint into the file: j: {j}")
+                self.test2.close()
+                    
+                
+        except Exception as e:
+            print(e)
+
     async def make_sample_rotations(self):
         try:
             step_count_pitch = 16
@@ -652,7 +689,7 @@ class Sandbox():
             start_time = time()
             while max_polling_duration >= elapsed_time:
                 if self.telemetry_data_ready: 
-                    self.logger.info(f"Data is raedy: i: {i}") 
+                    self.logger.info(f"Data is raedy: j: {j}") 
                     return True
                 else:
                     await asyncio.sleep(0.1)
