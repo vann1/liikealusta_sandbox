@@ -587,10 +587,11 @@ class Sandbox():
             for j in range(step_count_pitch):
                 commanded_pitch = 0
                 commanded_pitch = start_value_pitch - (j*step_change_pitch)
+                print(f"Pitch cycle nr: {j}")
+
                 for i in range(step_count_roll):
                     commanded_roll = 0
                     commanded_roll = start_value_roll - (i*step_change_roll)
-                    print(f"Pitch cycle nr: {i}")
                     await self.wsclient.send(f"action=rotate|pitch={commanded_pitch}|roll={commanded_roll}|")
                     await asyncio.sleep(0.5)
 
