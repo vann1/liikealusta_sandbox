@@ -46,6 +46,8 @@ class Sandbox():
         self.increment = 0
         self.telemetry_data_processed = False
         self.telemetry_data_sample_count = 11
+        self.accel_history = []
+
 
     def update(self, new_pitch, new_roll):
         if self.first_reading:
@@ -64,11 +66,14 @@ class Sandbox():
             elapsed_time=0
             start_time = time()
             while max_polling_duration >= elapsed_time:
-                response = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
-                velocity = abs(registers_convertion(registers=response.registers,format="8.24", signed=True))
-                velocity *= 60
+                response_left = self.client_left.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
+                velocity_left = abs(registers_convertion(registers=response_left.registers,format="8.24", signed=True))
+                response_right = self.client_right.read_holding_registers(address=config.VFEEDBACK_VELOCITY, count=2)
+                velocity_right = abs(registers_convertion(registers=response_right.registers,format="8.24", signed=True))
+                velocity_left *= 60
+                velocity_right *= 60
                 await asyncio.sleep(0.1)
-                if velocity < 1:
+                if velocity_left < 1 and velocity_right < 1:
                     return True
                 elapsed_time = time() - start_time
             self.logger.error("Motors did not stop in the given time frame")
@@ -499,8 +504,6 @@ class Sandbox():
             response_right = self.client_right.read_holding_registers(address=7188, count=1)
             self.write_to_file(registers_file, title="Modbus ctrl ", left_vals=[response_left.registers[0]], right_vals=[response_right.registers[0]])       
 
-    
-   
         finally:
             registers_file.close()
 
@@ -706,6 +709,8 @@ class Sandbox():
 
     def recive_telemetry_data(self,message):
         self.increment += 1
+        allpitch = 0
+        allroll = 0
         message=extract_part("message=", message)
         pitch,roll = message.split(",")
         pitch = float(pitch)
@@ -713,10 +718,19 @@ class Sandbox():
         roll += 0.9537832219798259
         pitch -=  0.4166189774422365
         self.pitch, self.roll = self.update(pitch, roll)
+        self.accel_history.append([self.pitch, self.roll])
+
         print(f"Telemetry:{pitch}, {roll} - Filtered: {self.pitch}, {self.roll}")
         self.telemetry_data_processed = True
 
         if self.increment == self.telemetry_data_sample_count:
+            for i in self.accel_history:
+                allpitch += i[0]
+                allroll += i[1]
+            self.pitch = (allpitch/self.telemetry_data_sample_count)
+            self.roll = (allroll/self.telemetry_data_sample_count)
+            self.logger.warning(f"{self.pitch},{self.roll}")
+            self.accel_history = []
             self.telemetry_data_ready = True     
 
     async def init(self, files=True):

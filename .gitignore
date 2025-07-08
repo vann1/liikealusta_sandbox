@@ -5,3 +5,4 @@ temp.txt
 registers.txt
 *.png
 !real*.txt
+!final*.txt
