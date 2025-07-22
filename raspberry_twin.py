@@ -51,6 +51,6 @@ if __name__ == "__main__":
         if crazyDemo.telemetry_data_processed:
             crazyDemo.telemetry_data_processed=False
             tcp_client.send_message("action=r_xl|")
-            sleep((1/5))
+            sleep((1/1000))
         
         

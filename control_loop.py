@@ -1,10 +1,10 @@
 import NiDAQ_controller
-import time
 import requests
 import asyncio
 from setup_logging import setup_logging
 from pymodbus.client import ModbusTcpClient
 import time
+
 import asyncio
 from utils import extract_part
 from test import bit_high_low
@@ -16,18 +16,18 @@ class ControlLoop():
     def __init__(self):
         self.mpi = MotionPlatformInterface()
         self.joy = NiDAQ_controller.NiDAQJoysticks()
-        self.MAX_PITCH = 8.5
-        self.MAX_ROLL = 16
+        self.MAX_PITCH = 10
+        self.MAX_ROLL = 20
         self.MAX_DIFF = 0
         self.logger = None
         self.wsclient = None
         self.asd = True
         
-    async def main(self):
+    def main(self):
         self.mpi.init()
         while True:
             try:
-                await asyncio.sleep(0.07)
+                time.sleep(1/1000)
                 values = self.joy.read()
                 pitch = values[4] * (-1)
                 roll = values[3]
@@ -57,4 +57,4 @@ class ControlLoop():
             
 if __name__ == "__main__":
     controlLoop = ControlLoop()
-    asyncio.run(controlLoop.main())
+    controlLoop.main()
