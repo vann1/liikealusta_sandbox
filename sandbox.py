@@ -755,6 +755,18 @@ class Sandbox():
         except Exception as e:
             self.logger.error("TÄSSÄ",e)
     
+    async def make_sample_rotations2(self):
+        try:
+            sample_count = 1000
+            for j in range(sample_count):
+                await self.wsclient.send(f"action=rotate|pitch={1}|roll={2}|")
+                await asyncio.sleep(0.5)
+
+            await self.wsclient.send(f"action=closefile|")
+        except Exception as e:
+            print(e)
+            raise Exception
+
     async def asd(self):
         try:
             await self.init(files=False)
