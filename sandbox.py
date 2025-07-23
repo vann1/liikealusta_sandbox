@@ -772,7 +772,7 @@ class Sandbox():
             await self.init(files=False)
             
             # await self.make_sample_rotations()
-            await self.modbus_cntrl_rotate()
+            await self.make_sample_rotations2()
         except Exception as e:
             print(e)
         finally:
