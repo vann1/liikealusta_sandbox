@@ -4,6 +4,7 @@ temp.txt
 *.txt
 registers.txt
 *.png
+!stopdemo.png.png
 !real*.txt
 !final*.txt
 temp.py
