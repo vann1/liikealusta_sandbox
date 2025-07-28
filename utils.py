@@ -83,6 +83,9 @@ def format_response(**kwargs):
         
        return "".join(msg_parts)
 
+result  = format_response(action="stop")
+print(f"RESULT : {result}" )
+
 def registers_convertion(registers,format,signed=False, scale=1):
         formats = format.split(".")
         

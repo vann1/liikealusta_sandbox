@@ -3,6 +3,7 @@ import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from colorama import init, Fore, Style
+from utils import format_response
 import sys
 from typing import Union
 import subprocess
@@ -48,6 +49,24 @@ class MotionPlatformInterface():
                 await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
             except Exception as e:
                 self.logger.error(f"Error while calling rotate function.{e}")
+
+    async def _stop(self):
+            """
+            Tries to stop both motors
+            """
+            try:
+                await self.wsclient.send(format_response(action="stop"))
+            except Exception as e:
+                self.logger.error(f"Error while calling stop function.{e}")
+
+    async def _continue(self):
+            """
+            Tries to remove stop state from both motors
+            """
+            try:
+                await self.wsclient.send(format_response(action="continue"))
+            except Exception as e:
+                self.logger.error(f"Error while calling continue function.{e}")
 
     def _start_background_loop(self):
         """Start event loop in background thread"""
@@ -96,7 +115,23 @@ class MotionPlatformInterface():
             
         future = asyncio.run_coroutine_threadsafe(self._rotate(pitch, roll), self._loop)
         future.result()  # Wait for completion
-        
+    
+    def stop(self):
+        """Synchronous method that uses background event loop"""
+        if self._loop is None:
+            raise RuntimeError("Must call init() first")
+            
+        future = asyncio.run_coroutine_threadsafe(self._stop(), self._loop)
+        future.result()  # Wait for completion
+
+    def stop(self):
+        """Synchronous method that uses background event loop"""
+        if self._loop is None:
+            raise RuntimeError("Must call init() first")
+            
+        future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
+        future.result()  # Wait for completion
+
     def close(self):
         """Clean shutdown"""
         if self._loop:
