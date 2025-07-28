@@ -51,11 +51,13 @@ class MotionPlatformInterface():
             Takes parameters pitch and roll and rotates motionplatform accordingly with given values.
             Raises ValueError if rotate frequency is too fast.
             """
+            print("Inside _rotate")
             try:
                 if self.error:
                     self.logger.error(f"Error rotating motionplatform. Error: {self.error}")
                     raise ValueError(f"Error rotating motionplatform. Error: {self.error}")
                 await self.wsclient.send(f"action=rotate|pitch={pitch}|roll={roll}|")
+                print("Made rotation request to the API")
             except Exception as e:
                 self.logger.error(f"Error while calling rotate function.{e}")
 
@@ -122,8 +124,11 @@ class MotionPlatformInterface():
         if self._loop is None:
             raise RuntimeError("Must call init() first")
             
+        print("Aabout to run _rotate function")
         future = asyncio.run_coroutine_threadsafe(self._rotate(pitch, roll), self._loop)
+        print("After _rotate")
         future.result()  # Wait for completion
+        print("After future result???")
     
     def stop(self):
         """Synchronous method that uses background event loop"""
@@ -133,7 +138,7 @@ class MotionPlatformInterface():
         future = asyncio.run_coroutine_threadsafe(self._stop(), self._loop)
         future.result()  # Wait for completion
 
-    def stop(self):
+    def continue_motors(self):
         """Synchronous method that uses background event loop"""
         if self._loop is None:
             raise RuntimeError("Must call init() first")
