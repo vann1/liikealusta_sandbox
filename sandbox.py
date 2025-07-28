@@ -736,6 +736,7 @@ class Sandbox():
     async def try_stop(self):
         await self.init()
         await self.wsclient.send(f"action=stop|")
+        await asyncio.sleep(1)
 
     async def init(self, files=True):
         try:
@@ -852,7 +853,7 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.asd())
+    asyncio.run(sandbox.try_stop())
     # asyncio.run(sandbox.test_new_rotate_equations_pitch())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
