@@ -733,17 +733,21 @@ class Sandbox():
             self.accel_history = []
             self.telemetry_data_ready = True     
 
+    async def try_stop(self):
+        await self.init()
+        await self.wsclient.send(f"action=stop|")
+
     async def init(self, files=True):
         try:
-            self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
-            self.iMU_client.connect()
-            self.client_right.connect()
-            self.client_left.connect()
+            # self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
+            # self.iMU_client.connect()
+            # self.client_right.connect()
+            # self.client_left.connect()
             self.logger = setup_logging("read_telemetry", "read_telemetry.txt")
-            self.test1=open("test1.txt", "a")
-            self.test2=open("test2.txt", "a")
-            self.test3=open("test3.txt", "a")
-            self.dataset = open("pitchroll3.csv", "a")
+            # self.test1=open("test1.txt", "a")
+            # self.test2=open("test2.txt", "a")
+            # self.test3=open("test3.txt", "a")
+            # self.dataset = open("pitchroll3.csv", "a")
             self.wsclient = WebSocketClient(self.logger, on_message=self.on_message, on_message_async=True, identity="sandbox")
             await self.wsclient.connect()
 
