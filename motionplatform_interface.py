@@ -3,7 +3,6 @@ import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from colorama import init, Fore, Style
-from utils import format_response
 import sys
 from typing import Union
 import subprocess
@@ -12,6 +11,16 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 
 """MOTIONPLATFORM INTERFACE"""
+
+def format_response(**kwargs):
+       """
+       Expects possible kwargs of event=event, action=action, message=message
+       """
+       msg_parts = []
+       for key, val in kwargs.items():
+              msg_parts.append(f"|{key}={val}|")
+        
+       return "".join(msg_parts)
 
 class MotionPlatformInterface():
     def __init__(self, logging=True):
