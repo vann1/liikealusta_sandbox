@@ -738,6 +738,11 @@ class Sandbox():
         await self.wsclient.send(f"action=stop|")
         await asyncio.sleep(1)
 
+    async def try_continue(self):
+        await self.init()
+        await self.wsclient.send(f"action=continue|")
+        await asyncio.sleep(1)
+
     async def init(self, files=True):
         try:
             # self.iMU_client = TCPSocketClient(host="10.214.33.19", port=7001, on_message_received=self.recive_telemetry_data)
@@ -853,7 +858,8 @@ class Sandbox():
   
 if __name__ == "__main__":
     sandbox = Sandbox()
-    asyncio.run(sandbox.try_stop())
+    # asyncio.run(sandbox.try_stop())
+    asyncio.run(sandbox.try_continue())
     # asyncio.run(sandbox.test_new_rotate_equations_pitch())
     # sandbox.run(sandbox.stopped())
     # asyncio.run(sandbox.change_h_vel())
