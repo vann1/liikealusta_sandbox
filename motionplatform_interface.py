@@ -133,7 +133,7 @@ class MotionPlatformInterface():
         future = asyncio.run_coroutine_threadsafe(self._stop(), self._loop)
         future.result()  # Wait for completion
 
-    def stop(self):
+    def continue_motors(self):
         """Synchronous method that uses background event loop"""
         if self._loop is None:
             raise RuntimeError("Must call init() first")
