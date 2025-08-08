@@ -159,33 +159,25 @@ class MotionPlatformInterface():
         future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
         future.result()  # Wait for completion
 
-def close(self):
-    """Perform a clean shutdown of the client, motors, and event loop."""
-    self.logger.info("entered close")
-    if not self._loop:
-        self.logger.info("No event loop to close")
-        return
+    def close(self):
+        """Perform a clean shutdown of the client, motors, and event loop."""
+        if not self._loop:
+            self.logger.info("No event loop to close")
+            return
 
         # Ensure motors are in a safe state
         if self.stopped:
-            self.logger.info("Calling continue")
-            self.logger.info("Resuming motors before shutdown")
             future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
-            self.logger.info("after continue")
             try:
-                future.result(timeout=5)
                 self.logger.info("Resuming motors after shutdown")
             except Exception as e:
                 self.logger.error(f"Failed to resume motors: {e}")
 
         # Stop motor rotation
-        self.logger.info("Stopping motors")
+        self.logger.info("rotating motors")
         future = asyncio.run_coroutine_threadsafe(self._rotate(0, 0), self._loop)
-        print("close")
         try:
             future.result(timeout=5)
-            self.logger.info("Resuming motors after rotate")
-
         except Exception as e:
             self.logger.error(f"Failed to stop motors: {e}")
 
@@ -194,18 +186,9 @@ def close(self):
         future = asyncio.run_coroutine_threadsafe(self.wsclient.close(), self._loop)
         try:
             future.result(timeout=5)
-            self.logger.info("WebSocket client closed successfully")
         except Exception as e:
             self.logger.error(f"WebSocket client close failed or timed out: {e}")
-
-        # Stop the event loop
-        # self.logger.info("Stopping event loop")
-        # # self._loop.call_soon_threadsafe(self._loop.stop)
-        # # self._loop.run_until_complete(self._loop.shutdown_asyncgens())
-        # self._loop.close()
-        # self.logger.info("Event loop closed successfully")
                 
-    
 """THIS IS FOR LOGGING"""        
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -524,3 +507,6 @@ def extract_part(part, message):
         return False
     
     return  message[start_idx:pipe_idx]
+
+
+
