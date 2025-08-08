@@ -14,7 +14,7 @@ def validate_float(self, num):
     try:
         return float(num)
     except ValueError as e:
-        self.logger.error("Give set angles as a float")
+        self.logger.error("Angles must be valid numers")
         return "invalid"
 
 
@@ -137,7 +137,7 @@ class MotionPlatformInterface():
         r1 = validate_float(self, pitch)
         r2 = validate_float(self, roll)
         if (r1 == "invalid" or r2 == "invalid"):
-            return -1
+            sys.exit(1)
         
         if self._loop is None:
             raise RuntimeError("Must call init() first")
@@ -510,6 +510,3 @@ def extract_part(part, message):
         return False
     
     return  message[start_idx:pipe_idx]
-
-
-
