@@ -84,6 +84,8 @@ class MotionPlatformInterface():
             """
             try:
                 await self.wsclient.send(format_response(action="continue"))
+                ### wait for the API to process the command
+                await asyncio.sleep(0.1)
                 self.stopped = False
             except Exception as e:
                 self.logger.error(f"Error while calling continue function.{e}")
@@ -169,6 +171,7 @@ class MotionPlatformInterface():
             future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
             try:
                 future.result(timeout=5)
+                self.logger.info("Resuming motors after shutdown")
             except Exception as e:
                 self.logger.error(f"Failed to resume motors: {e}")
 
@@ -178,6 +181,8 @@ class MotionPlatformInterface():
         print("close")
         try:
             future.result(timeout=5)
+            self.logger.info("Resuming motors after rotate")
+
         except Exception as e:
             self.logger.error(f"Failed to stop motors: {e}")
 
@@ -516,6 +521,3 @@ def extract_part(part, message):
         return False
     
     return  message[start_idx:pipe_idx]
-
-
-
