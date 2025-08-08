@@ -175,6 +175,8 @@ class MotionPlatformInterface():
 
         # Stop motor rotation
         self.logger.info("rotating motors")
+        ### Makes sure that the rotate command is not too fast 
+        sleep(0.1)
         future = asyncio.run_coroutine_threadsafe(self._rotate(0, 0), self._loop)
         try:
             future.result(timeout=5)
