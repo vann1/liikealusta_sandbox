@@ -159,16 +159,19 @@ class MotionPlatformInterface():
         future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
         future.result()  # Wait for completion
 
-    def close(self):
-        """Perform a clean shutdown of the client, motors, and event loop."""
-        if not self._loop:
-            self.logger.info("No event loop to close")
-            return
+def close(self):
+    """Perform a clean shutdown of the client, motors, and event loop."""
+    self.logger.info("entered close")
+    if not self._loop:
+        self.logger.info("No event loop to close")
+        return
 
         # Ensure motors are in a safe state
         if self.stopped:
+            self.logger.info("Calling continue")
             self.logger.info("Resuming motors before shutdown")
             future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
+            self.logger.info("after continue")
             try:
                 future.result(timeout=5)
                 self.logger.info("Resuming motors after shutdown")
