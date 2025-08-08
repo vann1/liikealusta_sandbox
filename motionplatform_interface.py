@@ -84,6 +84,7 @@ class MotionPlatformInterface():
             """
             try:
                 await self.wsclient.send(format_response(action="continue"))
+                self.stopped = False
             except Exception as e:
                 self.logger.error(f"Error while calling continue function.{e}")
 
