@@ -157,6 +157,8 @@ class MotionPlatformInterface():
     def close(self):
         """Clean shutdown"""
         if self._loop:
+            future = asyncio.run_coroutine_threadsafe(self._rotate(0, 0), self._loop)
+            future.result()
             future = asyncio.run_coroutine_threadsafe(self.wsclient.close(), self._loop)
             try:
                 future.result(timeout=5)
