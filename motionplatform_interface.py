@@ -10,6 +10,14 @@ from time import time, sleep
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
+def validate_float(self, num):
+    try:
+        return float(num)
+    except ValueError as e:
+        self.logger.error("Give set angles as a float")
+        return "invalid"
+
+
 """MOTIONPLATFORM INTERFACE"""
 
 def format_response(**kwargs):
@@ -119,6 +127,11 @@ class MotionPlatformInterface():
         
     def set_angles(self, pitch, roll):
         """Synchronous method that uses background event loop"""
+        r1 = validate_float(self, pitch)
+        r2 = validate_float(self, roll)
+        if (r1 == "invalid" or r2 == "invalid"):
+            return -1
+        
         if self._loop is None:
             raise RuntimeError("Must call init() first")
             
