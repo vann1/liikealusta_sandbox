@@ -157,13 +157,12 @@ class MotionPlatformInterface():
         future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
         future.result()  # Wait for completion
 
-def close(self):
-    """Perform a clean shutdown of the client, motors, and event loop."""
-    if not self._loop:
-        self.logger.info("No event loop to close")
-        return
+    def close(self):
+        """Perform a clean shutdown of the client, motors, and event loop."""
+        if not self._loop:
+            self.logger.info("No event loop to close")
+            return
 
-    try:
         # Ensure motors are in a safe state
         if self.stopped:
             self.logger.info("Resuming motors before shutdown")
@@ -176,6 +175,7 @@ def close(self):
         # Stop motor rotation
         self.logger.info("Stopping motors")
         future = asyncio.run_coroutine_threadsafe(self._rotate(0, 0), self._loop)
+        print("close")
         try:
             future.result(timeout=5)
         except Exception as e:
@@ -191,23 +191,11 @@ def close(self):
             self.logger.error(f"WebSocket client close failed or timed out: {e}")
 
         # Stop the event loop
-        self.logger.info("Stopping event loop")
-        self._loop.call_soon_threadsafe(self._loop.stop)
-        self._loop.run_until_complete(self._loop.shutdown_asyncgens())
-        self._loop.close()
-        self.logger.info("Event loop closed successfully")
-
-    finally:
-        # Join the loop thread
-        if self._loop_thread and self._loop_thread.is_alive():
-            self.logger.info("Joining event loop thread")
-            self._loop_thread.join(timeout=2)
-            if self._loop_thread.is_alive():
-                self.logger.warning("Event loop thread did not terminate cleanly")
-            else:
-                self.logger.info("Event loop thread closed successfully")
-        else:
-            self.logger.info("No event loop thread to join")
+        # self.logger.info("Stopping event loop")
+        # # self._loop.call_soon_threadsafe(self._loop.stop)
+        # # self._loop.run_until_complete(self._loop.shutdown_asyncgens())
+        # self._loop.close()
+        # self.logger.info("Event loop closed successfully")
                 
     
 """THIS IS FOR LOGGING"""        
