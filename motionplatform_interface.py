@@ -37,6 +37,7 @@ class MotionPlatformInterface():
         self.warnings = {}
         self._loop = None
         self._loop_thread = None
+        self.stopped = False
 
     async def _init(self):
         """
@@ -73,6 +74,7 @@ class MotionPlatformInterface():
             """
             try:
                 await self.wsclient.send(format_response(action="stop"))
+                self.stopped = True
             except Exception as e:
                 self.logger.error(f"Error while calling stop function.{e}")
 
@@ -157,6 +159,11 @@ class MotionPlatformInterface():
     def close(self):
         """Clean shutdown"""
         if self._loop:
+            ### continue motors
+            if self.stopped:
+                future = asyncio.run_coroutine_threadsafe(self._continue(), self._loop)
+                future.result()
+
             future = asyncio.run_coroutine_threadsafe(self._rotate(0, 0), self._loop)
             future.result()
             future = asyncio.run_coroutine_threadsafe(self.wsclient.close(), self._loop)
